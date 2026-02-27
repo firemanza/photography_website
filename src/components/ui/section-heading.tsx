@@ -14,25 +14,24 @@ export default function SectionHeading({
   align = "center",
 }: SectionHeadingProps) {
   return (
-    <div
-      className={cn(
-        "mb-12",
-        align === "center" && "text-center",
-        className
-      )}
-    >
-      <h2 className="font-heading text-3xl text-foreground md:text-4xl lg:text-5xl">
+    <div className={cn("mb-14", align === "center" && "text-center", className)}>
+      <p
+        className={cn(
+          "font-mono text-xs tracking-[0.2em] text-muted uppercase",
+          align === "center" && "justify-center"
+        )}
+      >
+        Field Notes
+      </p>
+      <h2 className="mt-3 font-heading text-4xl leading-tight text-foreground md:text-5xl lg:text-6xl">
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-4 text-base text-muted md:text-lg">{subtitle}</p>
+        <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted md:text-lg">
+          {subtitle}
+        </p>
       )}
-      <div
-        className={cn(
-          "mt-4 h-px w-16 bg-accent",
-          align === "center" && "mx-auto"
-        )}
-      />
+      <div className={cn("mt-6 h-[2px] w-20 bg-accent", align === "center" && "mx-auto")} />
     </div>
   );
 }

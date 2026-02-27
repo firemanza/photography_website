@@ -19,17 +19,16 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(nextSlide, 5000);
+    const interval = setInterval(nextSlide, 5200);
     return () => clearInterval(interval);
   }, [nextSlide]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Images */}
+    <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 sm:px-6 sm:pt-32">
       {heroImages.map((src, index) => (
         <div
           key={src}
-          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+          className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
           style={{ opacity: index === currentIndex ? 1 : 0 }}
         >
           <div
@@ -39,47 +38,49 @@ export default function Hero() {
         </div>
       ))}
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/20 to-background/80" />
+      <div className="absolute inset-0 bg-[linear-gradient(112deg,rgba(27,20,15,0.82)_0%,rgba(27,20,15,0.4)_45%,rgba(27,20,15,0.72)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(198,61,47,0.28),transparent_34%)]" />
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-        <h1 className="font-heading text-4xl text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-          {siteConfig.name}
-        </h1>
-        <div className="mt-6">
-          <ScrambleTagline />
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div className="max-w-3xl">
+          <p className="font-mono text-xs tracking-[0.2em] text-surface/80 uppercase">
+            Johannesburg, South Africa
+          </p>
+          <h1 className="mt-5 font-heading text-5xl leading-[0.9] text-surface sm:text-6xl md:text-7xl lg:text-8xl">
+            {siteConfig.name}
+          </h1>
+          <div className="mt-6 max-w-2xl">
+            <ScrambleTagline />
+          </div>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Button href="/portfolio" variant="primary">
+              View Portfolio
+            </Button>
+            <Button
+              href="/contact"
+              variant="secondary"
+              className="border-surface/70 !text-surface !hover:bg-surface !hover:text-foreground"
+            >
+              Start a Project
+            </Button>
+          </div>
         </div>
-        <div className="mt-8 flex gap-4">
-          <Button href="/portfolio" variant="primary">
-            View Portfolio
-          </Button>
-          <Button href="/contact" variant="secondary">
-            Get in Touch
-          </Button>
+
+        <div className="justify-self-start rounded-sm border border-surface/25 bg-black/30 p-5 backdrop-blur-sm sm:p-6 lg:justify-self-end">
+          <p className="font-mono text-[11px] tracking-[0.2em] text-surface/80 uppercase">Current Focus</p>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-surface/88">
+            Field-driven portraiture and wildlife narratives with a tactile, cinematic finish designed for editorial and personal archives.
+          </p>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2">
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-xs tracking-widest text-foreground/50 uppercase">
-            Scroll
-          </span>
-          <div className="h-8 w-px animate-pulse bg-foreground/30" />
-        </div>
-      </div>
-
-      {/* Slide Indicators */}
       <div className="absolute bottom-8 right-8 z-10 flex gap-2">
         {heroImages.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
             className={`h-1.5 rounded-full transition-all duration-300 ${
-              index === currentIndex
-                ? "w-8 bg-accent"
-                : "w-1.5 bg-foreground/30"
+              index === currentIndex ? "w-10 bg-accent" : "w-4 bg-surface/45"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

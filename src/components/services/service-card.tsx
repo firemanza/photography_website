@@ -8,48 +8,28 @@ interface ServiceCardProps {
 
 export default function ServiceCard({ service, reversed }: ServiceCardProps) {
   return (
-    <div
-      className={`grid gap-8 md:grid-cols-2 md:items-center ${
-        reversed ? "md:direction-rtl" : ""
-      }`}
-    >
-      {/* Image */}
+    <div className={`grid gap-8 rounded-sm border border-foreground/12 bg-surface/60 p-5 md:grid-cols-2 md:items-center md:p-7`}>
       <div className={`${reversed ? "md:order-2" : ""}`}>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-sm border border-foreground/12">
           <div
             className="h-full w-full bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: `url(${service.image})`,
-              backgroundColor: "#1e1e1e",
+              backgroundColor: "#d8cdb7",
             }}
           />
         </div>
       </div>
 
-      {/* Content */}
       <div className={`${reversed ? "md:order-1" : ""}`}>
-        <h3 className="font-heading text-2xl text-foreground md:text-3xl">
-          {service.title}
-        </h3>
-        <div className="mt-3 h-px w-12 bg-accent" />
+        <h3 className="font-heading text-3xl text-foreground md:text-4xl">{service.title}</h3>
+        <div className="mt-4 h-[2px] w-14 bg-accent" />
         <p className="mt-4 leading-relaxed text-muted">{service.description}</p>
 
-        <ul className="mt-6 space-y-2">
+        <ul className="mt-6 space-y-2.5">
           {service.deliverables.map((item) => (
-            <li key={item} className="flex items-center gap-2 text-sm text-muted">
-              <svg
-                className="h-4 w-4 shrink-0 text-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+            <li key={item} className="flex items-center gap-2 text-sm text-foreground/82">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
               {item}
             </li>
           ))}

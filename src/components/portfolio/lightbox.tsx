@@ -51,16 +51,15 @@ export default function Lightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/85 px-3 backdrop-blur-sm sm:px-6"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Image lightbox"
     >
-      {/* Close Button */}
       <button
         onClick={onClose}
-        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full text-foreground/70 transition-colors hover:text-foreground"
+        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-sm border border-surface/30 text-surface/80 transition-colors hover:text-surface"
         aria-label="Close lightbox"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,13 +67,12 @@ export default function Lightbox({
         </svg>
       </button>
 
-      {/* Previous Button */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           onPrev();
         }}
-        className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/80 text-foreground/70 transition-colors hover:text-foreground"
+        className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface/30 bg-black/25 text-surface/80 transition-colors hover:text-surface sm:left-5"
         aria-label="Previous image"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,13 +80,12 @@ export default function Lightbox({
         </svg>
       </button>
 
-      {/* Next Button */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           onNext();
         }}
-        className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/80 text-foreground/70 transition-colors hover:text-foreground"
+        className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface/30 bg-black/25 text-surface/80 transition-colors hover:text-surface sm:right-5"
         aria-label="Next image"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,27 +93,11 @@ export default function Lightbox({
         </svg>
       </button>
 
-      {/* Image */}
-      <div
-        className="relative max-h-[85vh] max-w-[90vw]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <img
-          src={current.src}
-          alt={current.alt}
-          className="max-h-[85vh] max-w-[90vw] object-contain"
-        />
-        {current.title && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/80 to-transparent p-4">
-            <p className="text-center text-sm text-foreground/80">
-              {current.title}
-            </p>
-          </div>
-        )}
+      <div className="relative max-h-[86vh] max-w-[92vw]" onClick={(e) => e.stopPropagation()}>
+        <img src={current.src} alt={current.alt} className="max-h-[86vh] max-w-[92vw] rounded-sm object-contain" />
       </div>
 
-      {/* Counter */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-sm border border-surface/25 px-3 py-1 text-xs tracking-[0.1em] text-surface/80 uppercase">
         {currentIndex + 1} / {images.length}
       </div>
     </div>

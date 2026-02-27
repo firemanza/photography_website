@@ -15,11 +15,10 @@ interface ButtonProps {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent text-background hover:bg-accent-light font-medium",
+    "bg-foreground text-surface hover:bg-accent hover:text-surface border border-foreground shadow-[4px_4px_0_var(--color-accent)] hover:shadow-[2px_2px_0_var(--color-accent)]",
   secondary:
-    "border border-accent text-accent hover:bg-accent hover:text-background",
-  ghost:
-    "text-muted hover:text-foreground",
+    "border border-foreground/35 text-foreground hover:bg-foreground hover:text-surface",
+  ghost: "text-muted hover:text-foreground",
 };
 
 export default function Button({
@@ -32,9 +31,9 @@ export default function Button({
   onClick,
 }: ButtonProps) {
   const styles = cn(
-    "inline-flex items-center justify-center rounded px-6 py-3 text-sm tracking-wide transition-all duration-300",
+    "inline-flex items-center justify-center rounded-sm px-6 py-3 text-xs font-medium tracking-[0.16em] uppercase transition-all duration-200",
     variantStyles[variant],
-    disabled && "opacity-50 cursor-not-allowed",
+    disabled && "cursor-not-allowed opacity-50",
     className
   );
 
@@ -47,12 +46,7 @@ export default function Button({
   }
 
   return (
-    <button
-      type={type}
-      className={styles}
-      disabled={disabled}
-      onClick={onClick}
-    >
+    <button type={type} className={styles} disabled={disabled} onClick={onClick}>
       {children}
     </button>
   );

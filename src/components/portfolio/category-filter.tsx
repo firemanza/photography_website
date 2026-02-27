@@ -18,14 +18,14 @@ export default function CategoryFilter() {
   };
 
   return (
-    <div className="mb-12 flex flex-wrap justify-center gap-2">
+    <div className="mb-14 flex flex-wrap justify-center gap-2 sm:gap-3">
       <button
         onClick={() => setCategory("all")}
         className={cn(
-          "rounded-full px-5 py-2 text-sm tracking-wide transition-all duration-300",
+          "rounded-sm border px-4 py-2 text-xs tracking-[0.14em] uppercase transition-all duration-200 sm:px-5",
           activeCategory === "all"
-            ? "bg-accent text-background"
-            : "border border-surface-light text-muted hover:border-accent hover:text-accent"
+            ? "border-foreground bg-foreground text-surface"
+            : "border-foreground/20 text-muted hover:border-accent hover:text-accent"
         )}
       >
         All
@@ -35,10 +35,10 @@ export default function CategoryFilter() {
           key={category.slug}
           onClick={() => setCategory(category.slug)}
           className={cn(
-            "rounded-full px-5 py-2 text-sm tracking-wide transition-all duration-300",
+            "rounded-sm border px-4 py-2 text-xs tracking-[0.14em] uppercase transition-all duration-200 sm:px-5",
             activeCategory === category.slug
-              ? "bg-accent text-background"
-              : "border border-surface-light text-muted hover:border-accent hover:text-accent"
+              ? "border-foreground bg-foreground text-surface"
+              : "border-foreground/20 text-muted hover:border-accent hover:text-accent"
           )}
         >
           {category.label}

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const WORDS = ["the wild", "the light", "the moment", "memories"];
-const TIMINGS = [1667, 1667, 1666, 10000];
+const WORDS = ["the wild", "the stillness", "the rush", "memory"];
+const TIMINGS = [1500, 1650, 1600, 9000];
 const CHARS = "abcdefghijklmnopqrstuvwxyz";
 
 export default function ScrambleTagline() {
@@ -12,7 +12,7 @@ export default function ScrambleTagline() {
   const animRef = useRef<number | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isMemories = wordIndex === WORDS.length - 1;
+  const isFinalWord = wordIndex === WORDS.length - 1;
 
   const scramble = useCallback((target: string, onComplete: () => void) => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
@@ -23,15 +23,13 @@ export default function ScrambleTagline() {
       const remaining = target.slice(Math.floor(iter));
       const scrambled = remaining
         .split("")
-        .map((c) =>
-          c === " " ? " " : CHARS[Math.floor(Math.random() * CHARS.length)]
-        )
+        .map((c) => (c === " " ? " " : CHARS[Math.floor(Math.random() * CHARS.length)]))
         .join("");
 
       setDisplay(revealed + scrambled);
 
       if (iter < target.length) {
-        iter += 0.4;
+        iter += 0.38;
         animRef.current = requestAnimationFrame(frame);
       } else {
         setDisplay(target);
@@ -56,33 +54,27 @@ export default function ScrambleTagline() {
   }, [wordIndex, scramble]);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <p className="flex flex-wrap items-baseline justify-center gap-[0.3em] text-center">
+    <div className="flex flex-col gap-4">
+      <p className="flex flex-wrap items-baseline gap-2 text-left">
+        <span className="font-mono text-sm tracking-[0.12em] text-surface/70 uppercase">In search of</span>
         <span
-          className="text-[clamp(1.8rem,4.5vw,3.5rem)] font-normal tracking-[0.06em] text-foreground/70"
-          style={{ fontFamily: "'Courier New', monospace" }}
-        >
-          In search of&hellip;
-        </span>
-        <span
-          className={`min-w-[6ch] text-[clamp(1.8rem,4.5vw,3.5rem)] font-bold tracking-[0.06em] transition-colors duration-300 ${
-            isMemories ? "text-accent" : "text-foreground"
+          className={`min-w-[8ch] text-3xl font-semibold tracking-[0.05em] ${
+            isFinalWord ? "text-accent-light" : "text-surface"
           }`}
-          style={{ fontFamily: "'Courier New', monospace" }}
+          style={{ fontFamily: "var(--font-mono)" }}
         >
           {display}
         </span>
       </p>
 
-      {/* Word indicators */}
       <div className="flex items-center gap-2">
         {WORDS.map((_, i) => (
           <div
             key={i}
-            className={`h-0.5 rounded-full transition-all duration-400 ${
+            className={`h-[3px] rounded-full transition-all duration-400 ${
               i === wordIndex
-                ? `w-8 ${isMemories ? "bg-accent" : "bg-foreground"}`
-                : "w-3 bg-foreground/20"
+                ? `w-11 ${isFinalWord ? "bg-accent-light" : "bg-surface"}`
+                : "w-4 bg-surface/35"
             }`}
           />
         ))}

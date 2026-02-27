@@ -1,9 +1,7 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import Container from "@/components/ui/container";
 import SectionHeading from "@/components/ui/section-heading";
-import CategoryFilter from "@/components/portfolio/category-filter";
-import MasonryGrid from "@/components/portfolio/masonry-grid";
+import PortfolioShowcase from "@/components/portfolio/portfolio-showcase";
 
 export const metadata: Metadata = {
   title: "Portfolio",
@@ -13,16 +11,13 @@ export const metadata: Metadata = {
 
 export default function PortfolioPage() {
   return (
-    <section className="pt-32 pb-24">
+    <section className="pb-24 pt-36 sm:pt-40">
       <Container>
         <SectionHeading
           title="Portfolio"
-          subtitle="A curated selection of my favourite work across every genre"
+          subtitle="A cinematic stage with uncropped full-frame viewing and curated navigation."
         />
-        <Suspense fallback={<div className="h-12" />}>
-          <CategoryFilter />
-          <MasonryGrid />
-        </Suspense>
+        <PortfolioShowcase />
       </Container>
     </section>
   );

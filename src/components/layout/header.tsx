@@ -10,7 +10,6 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/about", label: "About" },
-  { href: "/services", label: "Services" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -22,50 +21,113 @@ export default function Header() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => setIsScrolled(window.scrollY > 36);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-surface-light"
-          : "bg-transparent"
-      )}
-    >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="font-heading text-xl tracking-wide text-foreground transition-colors hover:text-accent"
-        >
-          {siteConfig.name}
-        </Link>
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-5">
+      <nav
+        className={cn(
+          "mx-auto max-w-7xl rounded-sm border transition-all duration-300",
+          isScrolled
+            ? "border-foreground/15 bg-surface/92 shadow-[0_12px_40px_rgba(30,24,20,0.15)] backdrop-blur"
+            : "border-foreground/10 bg-surface/72 backdrop-blur-sm"
+        )}
+      >
+        <div className="flex items-center justify-between px-4 py-3 md:px-6">
+          <Link href="/" className="group flex items-end gap-2 text-foreground">
+            <span className="font-heading text-xl tracking-[0.08em] uppercase sm:text-2xl">
+              {siteConfig.name}
+            </span>
+            <span className="mb-0.5 hidden h-px w-10 bg-accent transition-all group-hover:w-14 sm:block" />
+          </Link>
 
-        {/* Desktop Navigation */}
-        <ul className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <li key={link.href}>
+          <ul className="hidden items-center gap-1 md:flex">
+            {navLinks.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      "relative inline-flex rounded-sm px-4 py-2 text-xs tracking-[0.18em] uppercase transition-all",
+                      active
+                        ? "bg-foreground text-surface"
+                        : "text-muted hover:bg-foreground/8 hover:text-foreground"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <button
+            className="relative z-50 grid h-10 w-10 place-items-center rounded-sm border border-foreground/20 bg-surface/85 md:hidden"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
+          >
+            <div className="flex flex-col gap-1.5">
+              <span
+                className={cn(
+                  "block h-0.5 w-5 bg-foreground transition-all duration-300",
+                  isMobileMenuOpen && "translate-y-2 rotate-45"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-0.5 w-5 bg-foreground transition-all duration-300",
+                  isMobileMenuOpen && "opacity-0"
+                )}
+              />
+              <span
+                className={cn(
+                  "block h-0.5 w-5 bg-foreground transition-all duration-300",
+                  isMobileMenuOpen && "-translate-y-2 -rotate-45"
+                )}
+              />
+            </div>
+          </button>
+        </div>
+      </nav>
+
+      <div
+        className={cn(
+          "fixed inset-0 z-40 grid place-items-center bg-[linear-gradient(160deg,rgba(251,247,236,0.98),rgba(237,229,212,0.98))] px-6 transition-all duration-300 md:hidden",
+          isMobileMenuOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
+        )}
+      >
+        <ul className="flex flex-col items-center gap-4">
+          {navLinks.map((link, index) => (
+            <li
+              key={link.href}
+              style={{ transitionDelay: `${index * 45}ms` }}
+              className={cn(
+                "transition-all duration-300",
+                isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+              )}
+            >
               <Link
                 href={link.href}
+                onClick={closeMobileMenu}
                 className={cn(
-                  "text-sm tracking-wide transition-colors",
+                  "inline-block rounded-sm px-6 py-2 font-heading text-3xl tracking-[0.06em]",
                   pathname === link.href
-                    ? "text-accent"
-                    : "text-muted hover:text-foreground"
+                    ? "bg-foreground text-surface"
+                    : "text-foreground"
                 )}
               >
                 {link.label}
@@ -73,65 +135,7 @@ export default function Header() {
             </li>
           ))}
         </ul>
-
-        {/* Mobile Hamburger */}
-        <button
-          className="relative z-50 flex h-10 w-10 items-center justify-center md:hidden"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={isMobileMenuOpen}
-        >
-          <div className="flex flex-col gap-1.5">
-            <span
-              className={cn(
-                "block h-0.5 w-6 bg-foreground transition-all duration-300",
-                isMobileMenuOpen && "translate-y-2 rotate-45"
-              )}
-            />
-            <span
-              className={cn(
-                "block h-0.5 w-6 bg-foreground transition-all duration-300",
-                isMobileMenuOpen && "opacity-0"
-              )}
-            />
-            <span
-              className={cn(
-                "block h-0.5 w-6 bg-foreground transition-all duration-300",
-                isMobileMenuOpen && "-translate-y-2 -rotate-45"
-              )}
-            />
-          </div>
-        </button>
-
-        {/* Mobile Menu Overlay */}
-        <div
-          className={cn(
-            "fixed inset-0 z-40 flex flex-col items-center justify-center bg-background/98 backdrop-blur-lg transition-all duration-300 md:hidden",
-            isMobileMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          )}
-        >
-          <ul className="flex flex-col items-center gap-8">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={closeMobileMenu}
-                  className={cn(
-                    "font-heading text-3xl tracking-wide transition-colors",
-                    pathname === link.href
-                      ? "text-accent"
-                      : "text-foreground hover:text-accent"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
+      </div>
     </header>
   );
 }

@@ -70,7 +70,11 @@ Professional photography portfolio website built with Next.js, Tailwind CSS, and
    NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_xxxxxxx
    NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
    ```
-6. For production, add these as secrets in your GitHub repo settings (Settings > Secrets > Actions)
+6. Optional (recommended): add Cloudflare Turnstile site key for anti-bot verification:
+   ```
+   NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_turnstile_site_key
+   ```
+7. For production, add these as secrets/variables in your GitHub repo settings (Settings > Secrets and variables > Actions)
 
 ## Deployment
 

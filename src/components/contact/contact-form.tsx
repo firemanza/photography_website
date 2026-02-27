@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
+import Script from "next/script";
 import emailjs from "@emailjs/browser";
 import Button from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,8 +18,8 @@ const shootTypes = [
 const budgetRanges = [
   { value: "", label: "Select budget range" },
   { value: "under-2000", label: "Under R2,000" },
-  { value: "2000-5000", label: "R2,000 – R5,000" },
-  { value: "5000-10000", label: "R5,000 – R10,000" },
+  { value: "2000-5000", label: "R2,000 - R5,000" },
+  { value: "5000-10000", label: "R5,000 - R10,000" },
   { value: "10000+", label: "R10,000+" },
   { value: "discuss", label: "Let's discuss" },
 ];
@@ -34,14 +35,25 @@ const howFoundOptions = [
 type FormStatus = "idle" | "sending" | "success" | "error";
 
 const inputStyles =
-  "w-full rounded border border-surface-light bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted/50 transition-colors focus:border-accent focus:outline-none";
+  "w-full rounded-sm border border-foreground/16 bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted/70 transition-colors focus:border-accent focus:outline-none";
+
+declare global {
+  interface Window {
+    onTurnstileSuccess?: (token: string) => void;
+    onTurnstileExpired?: () => void;
+    onTurnstileError?: () => void;
+  }
+}
 
 export default function ContactForm() {
   const searchParams = useSearchParams();
   const prefilledService = searchParams.get("service") || "";
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const [status, setStatus] = useState<FormStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -54,17 +66,29 @@ export default function ContactForm() {
     howFound: "",
   });
 
-  const updateField = (
-    field: keyof typeof formData,
-    value: string
-  ) => {
+  const updateField = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  useEffect(() => {
+    if (!turnstileSiteKey) return;
+
+    window.onTurnstileSuccess = (token: string) => setTurnstileToken(token);
+    window.onTurnstileExpired = () => setTurnstileToken("");
+    window.onTurnstileError = () => setTurnstileToken("");
+
+    return () => {
+      window.onTurnstileSuccess = undefined;
+      window.onTurnstileExpired = undefined;
+      window.onTurnstileError = undefined;
+    };
+  }, [turnstileSiteKey]);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
 
-    // Honeypot check — bots fill hidden fields
+    // Honeypot check, bots often fill hidden fields.
     if (honeypot) {
       setStatus("success");
       return;
@@ -76,6 +100,13 @@ export default function ContactForm() {
 
     if (!serviceId || !templateId || !publicKey) {
       setStatus("error");
+      setErrorMessage("Form is not configured yet. Please try again later.");
+      return;
+    }
+
+    if (turnstileSiteKey && !turnstileToken) {
+      setStatus("error");
+      setErrorMessage("Please complete the verification challenge.");
       return;
     }
 
@@ -100,18 +131,21 @@ export default function ContactForm() {
           how_found:
             howFoundOptions.find((h) => h.value === formData.howFound)?.label ||
             "Not specified",
+          turnstile_token: turnstileToken || "Not provided",
         },
         publicKey
       );
       setStatus("success");
+      setTurnstileToken("");
     } catch {
       setStatus("error");
+      setErrorMessage("Something went wrong. Please try again or email me directly.");
     }
   };
 
   if (status === "success") {
     return (
-      <div className="rounded-lg border border-accent/20 bg-accent/5 p-12 text-center">
+      <div className="rounded-sm border border-accent/30 bg-accent/8 p-12 text-center">
         <svg
           className="mx-auto h-12 w-12 text-accent"
           fill="none"
@@ -125,23 +159,26 @@ export default function ContactForm() {
             d="M5 13l4 4L19 7"
           />
         </svg>
-        <h3 className="mt-4 font-heading text-2xl text-foreground">
-          Thanks for reaching out!
-        </h3>
-        <p className="mt-2 text-muted">
-          I&apos;ll be in touch within 48 hours.
-        </p>
+        <h3 className="mt-4 font-heading text-3xl text-foreground">Thanks for reaching out.</h3>
+        <p className="mt-2 text-muted">I will get back to you within 48 hours.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-      {/* Honeypot — hidden from real users */}
-      <div
-        className="absolute -z-10 h-0 overflow-hidden opacity-0"
-        aria-hidden="true"
-      >
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 rounded-sm border border-foreground/12 bg-surface/70 p-6 sm:p-8"
+      noValidate
+    >
+      {turnstileSiteKey && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          strategy="afterInteractive"
+        />
+      )}
+
+      <div className="absolute -z-10 h-0 overflow-hidden opacity-0" aria-hidden="true">
         <label htmlFor="website">Website</label>
         <input
           type="text"
@@ -154,10 +191,9 @@ export default function ContactForm() {
         />
       </div>
 
-      {/* Name & Email */}
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="name" className="mb-2 block text-sm text-muted">
+          <label htmlFor="name" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Full Name <span className="text-accent">*</span>
           </label>
           <input
@@ -171,7 +207,7 @@ export default function ContactForm() {
           />
         </div>
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm text-muted">
+          <label htmlFor="email" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Email Address <span className="text-accent">*</span>
           </label>
           <input
@@ -186,10 +222,9 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Phone & Shoot Type */}
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="phone" className="mb-2 block text-sm text-muted">
+          <label htmlFor="phone" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Phone Number
           </label>
           <input
@@ -202,7 +237,7 @@ export default function ContactForm() {
           />
         </div>
         <div>
-          <label htmlFor="shootType" className="mb-2 block text-sm text-muted">
+          <label htmlFor="shootType" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Type of Shoot <span className="text-accent">*</span>
           </label>
           <select
@@ -221,10 +256,9 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Date & Location */}
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="date" className="mb-2 block text-sm text-muted">
+          <label htmlFor="date" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Preferred Date
           </label>
           <input
@@ -236,7 +270,7 @@ export default function ContactForm() {
           />
         </div>
         <div>
-          <label htmlFor="location" className="mb-2 block text-sm text-muted">
+          <label htmlFor="location" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Location
           </label>
           <input
@@ -250,10 +284,9 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Budget & How Found */}
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="budget" className="mb-2 block text-sm text-muted">
+          <label htmlFor="budget" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             Budget Range
           </label>
           <select
@@ -270,7 +303,7 @@ export default function ContactForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="howFound" className="mb-2 block text-sm text-muted">
+          <label htmlFor="howFound" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
             How did you find me?
           </label>
           <select
@@ -288,9 +321,8 @@ export default function ContactForm() {
         </div>
       </div>
 
-      {/* Message */}
       <div>
-        <label htmlFor="message" className="mb-2 block text-sm text-muted">
+        <label htmlFor="message" className="mb-2 block text-xs tracking-[0.12em] text-muted uppercase">
           Tell me about your shoot <span className="text-accent">*</span>
         </label>
         <textarea
@@ -304,21 +336,26 @@ export default function ContactForm() {
         />
       </div>
 
-      {/* Submit */}
-      <div className="flex flex-col items-start gap-4">
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={status === "sending"}
-        >
+      {turnstileSiteKey && (
+        <div>
+          <p className="mb-2 text-xs tracking-[0.12em] text-muted uppercase">Verification</p>
+          <div
+            className="cf-turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-callback="onTurnstileSuccess"
+            data-expired-callback="onTurnstileExpired"
+            data-error-callback="onTurnstileError"
+            data-theme="light"
+          />
+        </div>
+      )}
+
+      <div className="flex flex-col items-start gap-4 pt-2">
+        <Button type="submit" variant="primary" disabled={status === "sending"}>
           {status === "sending" ? "Sending..." : "Send Enquiry"}
         </Button>
 
-        {status === "error" && (
-          <p className="text-sm text-red-400">
-            Something went wrong. Please try again or email me directly.
-          </p>
-        )}
+        {status === "error" && <p className="text-sm text-red-700">{errorMessage}</p>}
       </div>
     </form>
   );

@@ -39,6 +39,7 @@ env.production
 # IDE
 .vscode/
 .idea/
+.claude/
 
 # OS
 Thumbs.db
