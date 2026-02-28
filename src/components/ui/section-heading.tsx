@@ -23,7 +23,10 @@ export default function SectionHeading({
       >
         Field Notes
       </p>
-      <h2 className="mt-3 font-heading text-4xl leading-tight text-foreground md:text-5xl lg:text-6xl">
+      <h2
+        className="mt-3 font-heading leading-tight text-foreground"
+        style={{ fontSize: "clamp(2rem, 5vw, 3.75rem)" }}
+      >
         {title}
       </h2>
       {subtitle && (

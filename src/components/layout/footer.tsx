@@ -13,7 +13,11 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr] md:items-end">
           <div>
-            <Link href="/" className="inline-block font-heading text-3xl tracking-[0.06em] uppercase text-foreground">
+            <Link
+              href="/"
+              className="inline-block font-heading tracking-[0.06em] uppercase text-foreground"
+              style={{ fontSize: "clamp(1.5rem, 3vw, 1.875rem)" }}
+            >
               {siteConfig.name}
             </Link>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">

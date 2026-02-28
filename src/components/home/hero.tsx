@@ -130,7 +130,10 @@ export default function Hero() {
           <p className="font-mono text-xs tracking-[0.2em] text-surface/80 uppercase">
             Johannesburg, South Africa
           </p>
-          <h1 className="mt-5 font-heading text-5xl leading-[0.9] text-surface sm:text-6xl md:text-7xl lg:text-8xl">
+          <h1
+            className="mt-5 font-heading leading-[0.9] text-surface"
+            style={{ fontSize: "clamp(2.8rem, 7vw, 6rem)" }}
+          >
             {siteConfig.name}
           </h1>
           <div className="mt-6 max-w-2xl">

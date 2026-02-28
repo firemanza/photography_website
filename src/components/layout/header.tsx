@@ -45,13 +45,16 @@ export default function Header() {
       >
         <div className="flex items-center justify-between px-4 py-3 md:px-6">
           <Link href="/" className="group flex shrink-0 items-end gap-2 text-foreground">
-            <span className="whitespace-nowrap font-heading text-lg leading-none tracking-[0.06em] uppercase sm:text-2xl lg:text-[1.7rem]">
+            <span
+              className="whitespace-nowrap font-heading leading-none tracking-[0.06em] uppercase"
+              style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.7rem)" }}
+            >
               {siteConfig.name}
             </span>
             <span className="mb-0.5 hidden h-px w-10 origin-left bg-accent transition-transform group-hover:scale-x-125 sm:block" />
           </Link>
 
-          <ul className="hidden items-center gap-1 md:flex">
+          <ul className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => {
               const active = pathname === link.href;
               return (
@@ -73,7 +76,7 @@ export default function Header() {
           </ul>
 
           <button
-            className="relative z-50 grid h-10 w-10 place-items-center rounded-sm border border-foreground/20 bg-surface/85 md:hidden"
+            className="relative z-50 grid h-10 w-10 place-items-center rounded-sm border border-foreground/20 bg-surface/85 lg:hidden"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMobileMenuOpen}
@@ -104,7 +107,7 @@ export default function Header() {
 
       <div
         className={cn(
-          "fixed inset-0 z-40 grid place-items-center bg-[linear-gradient(160deg,rgba(251,247,236,0.98),rgba(237,229,212,0.98))] px-6 transition-[opacity] duration-300 ease-out md:hidden",
+          "fixed inset-0 z-40 grid place-items-center bg-[linear-gradient(160deg,rgba(251,247,236,0.98),rgba(237,229,212,0.98))] px-6 transition-[opacity] duration-300 ease-out lg:hidden",
           isMobileMenuOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"

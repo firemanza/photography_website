@@ -37,7 +37,10 @@ export default function GenreGrid() {
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,18,13,0.2)_10%,rgba(23,18,13,0.78)_100%)] transition-[opacity,background] duration-400 ease-out group-hover:bg-[linear-gradient(180deg,rgba(23,18,13,0.15)_10%,rgba(23,18,13,0.6)_100%)]" />
 
                 <div className="absolute inset-x-0 bottom-0 p-6">
-                  <h3 className="font-heading text-3xl text-surface">{category.label}</h3>
+                  <h3
+                    className="font-heading text-surface"
+                    style={{ fontSize: "clamp(1.5rem, 3vw, 1.875rem)" }}
+                  >{category.label}</h3>
                   <div className="mt-3 h-[2px] w-12 origin-left bg-accent transition-transform duration-400 ease-out group-hover:scale-x-150" />
                 </div>
               </Link>

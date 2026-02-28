@@ -29,7 +29,10 @@ export default function AboutPage() {
 
             <div className="max-w-3xl">
               <p className="font-mono text-xs tracking-[0.2em] text-muted uppercase">About</p>
-              <h1 className="mt-2 font-heading text-5xl text-foreground md:text-6xl">About Me</h1>
+              <h1
+                className="mt-2 font-heading text-foreground"
+                style={{ fontSize: "clamp(2.2rem, 5vw, 3.75rem)" }}
+              >About Me</h1>
               <div className="mt-5 h-[2px] w-20 bg-accent" />
               <div className="mt-8 space-y-4 text-muted">
                 {aboutContent.bio.map((paragraph, index) => (

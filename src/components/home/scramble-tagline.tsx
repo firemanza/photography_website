@@ -58,10 +58,10 @@ export default function ScrambleTagline() {
       <p className="flex flex-wrap items-baseline gap-2 text-left">
         <span className="font-mono text-sm tracking-[0.12em] text-surface/70 uppercase">In search of</span>
         <span
-          className={`min-w-[8ch] text-3xl font-semibold tracking-[0.05em] ${
+          className={`min-w-[6ch] font-semibold tracking-[0.05em] ${
             isFinalWord ? "text-accent-light" : "text-surface"
           }`}
-          style={{ fontFamily: "var(--font-mono)" }}
+          style={{ fontFamily: "var(--font-mono)", fontSize: "clamp(1.4rem, 3.5vw, 1.875rem)" }}
         >
           {display}
         </span>
