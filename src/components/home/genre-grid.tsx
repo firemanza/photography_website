@@ -3,6 +3,7 @@ import { siteConfig } from "@/config/site";
 import AnimatedSection from "@/components/ui/animated-section";
 import SectionHeading from "@/components/ui/section-heading";
 import Container from "@/components/ui/container";
+import { getImagePath } from "@/lib/utils";
 
 const genreImages: Record<string, string> = {
   wildlife: "/images/wildlife/wildlife-cover.jpg",
@@ -30,7 +31,7 @@ export default function GenreGrid() {
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${genreImages[category.slug]})` }}
+                  style={{ backgroundImage: `url(${getImagePath(genreImages[category.slug])})` }}
                 />
 
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,18,13,0.2)_10%,rgba(23,18,13,0.78)_100%)] transition-all duration-300 group-hover:bg-[linear-gradient(180deg,rgba(23,18,13,0.15)_10%,rgba(23,18,13,0.6)_100%)]" />

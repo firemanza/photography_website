@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site";
 import AnimatedSection from "@/components/ui/animated-section";
 import Container from "@/components/ui/container";
+import { getImagePath } from "@/lib/utils";
 
 const instagramImages = [
   "/images/instagram/ig-1.jpg",
@@ -43,7 +44,7 @@ export default function InstagramStrip() {
               >
                 <div
                   className="h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${src})` }}
+                  style={{ backgroundImage: `url(${getImagePath(src)})` }}
                 />
                 <div className="absolute inset-0 bg-foreground/0 transition-all duration-300 group-hover:bg-foreground/20" />
               </a>

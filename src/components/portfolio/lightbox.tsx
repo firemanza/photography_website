@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useCallback } from "react";
 import type { PortfolioImage } from "@/data/portfolio";
+import { getImagePath } from "@/lib/utils";
 
 interface LightboxProps {
   images: PortfolioImage[];
@@ -94,7 +95,7 @@ export default function Lightbox({
       </button>
 
       <div className="relative max-h-[86vh] max-w-[92vw]" onClick={(e) => e.stopPropagation()}>
-        <img src={current.src} alt={current.alt} className="max-h-[86vh] max-w-[92vw] rounded-sm object-contain" />
+        <img src={getImagePath(current.src)} alt={current.alt} className="max-h-[86vh] max-w-[92vw] rounded-sm object-contain" />
       </div>
 
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-sm border border-surface/25 px-3 py-1 text-xs tracking-[0.1em] text-surface/80 uppercase">

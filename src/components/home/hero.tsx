@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { siteConfig } from "@/config/site";
 import Button from "@/components/ui/button";
 import ScrambleTagline from "@/components/home/scramble-tagline";
+import { getImagePath } from "@/lib/utils";
 
 const heroImages = [
   "/images/hero/hero-1.jpg",
@@ -33,7 +34,7 @@ export default function Hero() {
         >
           <div
             className="h-full w-full bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${src})` }}
+            style={{ backgroundImage: `url(${getImagePath(src)})` }}
           />
         </div>
       ))}

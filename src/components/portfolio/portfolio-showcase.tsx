@@ -4,7 +4,7 @@
 import { useMemo, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { portfolioImages } from "@/data/portfolio";
-import { cn } from "@/lib/utils";
+import { cn, getImagePath } from "@/lib/utils";
 
 const tiltPattern = [
   "rotate-[-1.8deg]",
@@ -154,7 +154,7 @@ export default function PortfolioShowcase() {
                     )}
                   >
                     <img
-                      src={image.src}
+                      src={getImagePath(image.src)}
                       alt={image.alt}
                       width={image.width}
                       height={image.height}
@@ -195,7 +195,7 @@ export default function PortfolioShowcase() {
               >
                 {previewImage ? (
                   <img
-                    src={previewImage.src}
+                    src={getImagePath(previewImage.src)}
                     alt=""
                     width={previewImage.width}
                     height={previewImage.height}

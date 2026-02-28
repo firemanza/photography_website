@@ -1,5 +1,6 @@
 import Button from "@/components/ui/button";
 import type { Service } from "@/data/services";
+import { getImagePath } from "@/lib/utils";
 
 interface ServiceCardProps {
   service: Service;
@@ -14,7 +15,7 @@ export default function ServiceCard({ service, reversed }: ServiceCardProps) {
           <div
             className="h-full w-full bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url(${service.image})`,
+              backgroundImage: `url(${getImagePath(service.image)})`,
               backgroundColor: "#d8cdb7",
             }}
           />

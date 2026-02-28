@@ -3,6 +3,7 @@ import Container from "@/components/ui/container";
 import AnimatedSection from "@/components/ui/animated-section";
 import { siteConfig } from "@/config/site";
 import { aboutContent } from "@/data/about";
+import { getImagePath } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "About",
@@ -20,7 +21,7 @@ export default function AboutPage() {
               <div
                 className="h-full w-full bg-cover bg-center bg-no-repeat"
                 style={{
-                  backgroundImage: `url(${aboutContent.portrait})`,
+                  backgroundImage: `url(${getImagePath(aboutContent.portrait)})`,
                   backgroundColor: "#d8cdb7",
                 }}
               />

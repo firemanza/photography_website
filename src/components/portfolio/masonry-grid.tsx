@@ -4,6 +4,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { portfolioImages, type PortfolioImage } from "@/data/portfolio";
+import { getImagePath } from "@/lib/utils";
 import Lightbox from "./lightbox";
 
 export default function MasonryGrid() {
@@ -80,7 +81,7 @@ function MasonryItem({
     >
       <div className="relative overflow-hidden">
         <img
-          src={image.src}
+          src={getImagePath(image.src)}
           alt={image.alt}
           width={image.width}
           height={image.height}
