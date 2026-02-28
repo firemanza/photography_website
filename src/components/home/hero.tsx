@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -30,18 +29,9 @@ export default function Hero() {
   const [isMobile, setIsMobile] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
-  const activeSlides = useMemo(
-    () =>
-      heroSlides.map((slide) => ({
-        src: isMobile ? slide.mobile : slide.desktop,
-        alt: slide.alt,
-      })),
-    [isMobile]
-  );
-
   const nextSlide = useCallback(() => {
-    setRequestedIndex((prev) => (prev + 1) % activeSlides.length);
-  }, [activeSlides.length]);
+    setRequestedIndex((prev) => (prev + 1) % heroSlides.length);
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
@@ -59,54 +49,70 @@ export default function Hero() {
   }, [nextSlide]);
 
   useEffect(() => {
-    activeSlides.forEach((slide) => {
-      if (loadedImages[slide.src]) return;
+    heroSlides.forEach((slide, index) => {
+      const activeSrc = isMobile ? slide.mobile : slide.desktop;
+      if (loadedImages[`${index}:${activeSrc}`]) return;
 
       const preloader = new window.Image();
       preloader.decoding = "async";
       preloader.onload = () => {
         setLoadedImages((current) => {
-          if (current[slide.src]) return current;
-          return { ...current, [slide.src]: true };
+          if (current[`${index}:${activeSrc}`]) return current;
+          return { ...current, [`${index}:${activeSrc}`]: true };
         });
       };
-      preloader.src = getImagePath(slide.src);
+      preloader.src = getImagePath(activeSrc);
     });
-  }, [activeSlides, loadedImages]);
+  }, [isMobile, loadedImages]);
 
   const visibleIndex = useMemo(() => {
-    const requestedSlide = activeSlides[requestedIndex];
-    if (requestedSlide && loadedImages[requestedSlide.src]) {
+    const requestedSlide = heroSlides[requestedIndex];
+    const requestedSrc = requestedSlide ? (isMobile ? requestedSlide.mobile : requestedSlide.desktop) : "";
+    if (requestedSlide && loadedImages[`${requestedIndex}:${requestedSrc}`]) {
       return requestedIndex;
     }
 
-    const firstLoadedIndex = activeSlides.findIndex((slide) => loadedImages[slide.src]);
+    const firstLoadedIndex = heroSlides.findIndex((slide, index) => {
+      const activeSrc = isMobile ? slide.mobile : slide.desktop;
+      return loadedImages[`${index}:${activeSrc}`];
+    });
     return firstLoadedIndex >= 0 ? firstLoadedIndex : 0;
-  }, [activeSlides, loadedImages, requestedIndex]);
+  }, [isMobile, loadedImages, requestedIndex]);
 
-  const currentSlideLoaded = Boolean(activeSlides[visibleIndex] && loadedImages[activeSlides[visibleIndex].src]);
+  const currentSlide = heroSlides[visibleIndex];
+  const currentSlideLoaded = Boolean(
+    currentSlide &&
+      loadedImages[`${visibleIndex}:${isMobile ? currentSlide.mobile : currentSlide.desktop}`]
+  );
 
   return (
     <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 sm:px-6 sm:pt-32">
       <div className="absolute inset-0 bg-[linear-gradient(140deg,#1b140f_0%,#30231a_52%,#1a1310_100%)]" />
       <div className="absolute inset-0 opacity-90 [background-image:radial-gradient(circle_at_18%_24%,rgba(214,101,56,0.24),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(255,246,222,0.12),transparent_24%)]" />
 
-      {activeSlides.map((slide, index) => (
+      {heroSlides.map((slide, index) => {
+        const activeSrc = isMobile ? slide.mobile : slide.desktop;
+
+        return (
         <div
-          key={slide.src}
+          key={index}
           className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
-          style={{ opacity: index === visibleIndex && loadedImages[slide.src] ? 1 : 0 }}
+          style={{ opacity: index === visibleIndex && loadedImages[`${index}:${activeSrc}`] ? 1 : 0 }}
         >
-          <img
-            src={getImagePath(slide.src)}
-            alt={slide.alt}
-            className="h-full w-full object-cover"
-            loading={index === 0 ? "eager" : "lazy"}
-            fetchPriority={index === 0 ? "high" : "auto"}
-            decoding="async"
-          />
+          <picture>
+            <source media="(max-width: 767px)" srcSet={getImagePath(slide.mobile)} />
+            <img
+              src={getImagePath(slide.desktop)}
+              alt={slide.alt}
+              className="h-full w-full object-cover transition-transform duration-[1800ms] ease-out"
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              decoding="async"
+            />
+          </picture>
         </div>
-      ))}
+        );
+      })}
 
       <div
         className="absolute inset-0 transition-opacity duration-700"
@@ -153,7 +159,7 @@ export default function Hero() {
       </div>
 
       <div className="absolute bottom-8 right-8 z-10 flex gap-2">
-        {activeSlides.map((_, index) => (
+        {heroSlides.map((_, index) => (
           <button
             key={index}
             onClick={() => setRequestedIndex(index)}
