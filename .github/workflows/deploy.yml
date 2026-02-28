@@ -49,6 +49,17 @@ jobs:
           NEXT_PUBLIC_LOCATION: ${{ vars.LOCATION }}
           NEXT_PUBLIC_TAGLINE: ${{ vars.TAGLINE }}
 
+      - name: Prepare export
+        run: |
+          if [ -f out/_not-found.html ]; then
+            cp out/_not-found.html out/404.html
+          fi
+
+      - name: Verify export
+        run: |
+          test -f out/index.html
+          ls -la out | sed -n '1,40p'
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

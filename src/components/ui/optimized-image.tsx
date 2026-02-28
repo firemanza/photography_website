@@ -1,4 +1,4 @@
-import ExportedImage from "next-image-export-optimizer";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface OptimizedImageProps {
@@ -23,7 +23,7 @@ export default function OptimizedImage({
   sizes,
 }: OptimizedImageProps) {
   return (
-    <ExportedImage
+    <Image
       src={src}
       alt={alt}
       width={fill ? undefined : width}
