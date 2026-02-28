@@ -57,8 +57,13 @@ jobs:
 
       - name: Verify export
         run: |
+          ls -la
+          if [ -d out ]; then
+            ls -la out | sed -n '1,80p'
+          else
+            echo "out directory is missing"
+          fi
           test -f out/index.html
-          ls -la out | sed -n '1,40p'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
