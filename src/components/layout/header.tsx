@@ -44,11 +44,11 @@ export default function Header() {
         )}
       >
         <div className="flex items-center justify-between px-4 py-3 md:px-6">
-          <Link href="/" className="group flex items-end gap-2 text-foreground">
-            <span className="font-heading text-xl tracking-[0.08em] uppercase sm:text-2xl">
+          <Link href="/" className="group flex shrink-0 items-end gap-2 text-foreground">
+            <span className="whitespace-nowrap font-heading text-lg leading-none tracking-[0.06em] uppercase sm:text-2xl lg:text-[1.7rem]">
               {siteConfig.name}
             </span>
-            <span className="mb-0.5 hidden h-px w-10 bg-accent transition-all group-hover:w-14 sm:block" />
+            <span className="mb-0.5 hidden h-px w-10 origin-left bg-accent transition-transform group-hover:scale-x-125 sm:block" />
           </Link>
 
           <ul className="hidden items-center gap-1 md:flex">
