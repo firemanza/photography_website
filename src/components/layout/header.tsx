@@ -37,7 +37,7 @@ export default function Header() {
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-5">
       <nav
         className={cn(
-          "mx-auto max-w-7xl rounded-sm border transition-all duration-300",
+          "mx-auto max-w-7xl rounded-sm border transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out",
           isScrolled
             ? "border-foreground/15 bg-surface/92 shadow-[0_12px_40px_rgba(30,24,20,0.15)] backdrop-blur"
             : "border-foreground/10 bg-surface/72 backdrop-blur-sm"
@@ -59,7 +59,7 @@ export default function Header() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative inline-flex rounded-sm px-4 py-2 text-xs tracking-[0.18em] uppercase transition-all",
+                      "relative inline-flex rounded-sm px-4 py-2 text-xs tracking-[0.18em] uppercase transition-[color,background-color,border-color] duration-250 ease-out",
                       active
                         ? "bg-foreground text-surface"
                         : "text-muted hover:bg-foreground/8 hover:text-foreground"
@@ -81,19 +81,19 @@ export default function Header() {
             <div className="flex flex-col gap-1.5">
               <span
                 className={cn(
-                  "block h-0.5 w-5 bg-foreground transition-all duration-300",
+                  "block h-0.5 w-5 bg-foreground transition-[transform,opacity] duration-300 ease-out",
                   isMobileMenuOpen && "translate-y-2 rotate-45"
                 )}
               />
               <span
                 className={cn(
-                  "block h-0.5 w-5 bg-foreground transition-all duration-300",
+                  "block h-0.5 w-5 bg-foreground transition-[transform,opacity] duration-300 ease-out",
                   isMobileMenuOpen && "opacity-0"
                 )}
               />
               <span
                 className={cn(
-                  "block h-0.5 w-5 bg-foreground transition-all duration-300",
+                  "block h-0.5 w-5 bg-foreground transition-[transform,opacity] duration-300 ease-out",
                   isMobileMenuOpen && "-translate-y-2 -rotate-45"
                 )}
               />
@@ -104,7 +104,7 @@ export default function Header() {
 
       <div
         className={cn(
-          "fixed inset-0 z-40 grid place-items-center bg-[linear-gradient(160deg,rgba(251,247,236,0.98),rgba(237,229,212,0.98))] px-6 transition-all duration-300 md:hidden",
+          "fixed inset-0 z-40 grid place-items-center bg-[linear-gradient(160deg,rgba(251,247,236,0.98),rgba(237,229,212,0.98))] px-6 transition-[opacity] duration-300 ease-out md:hidden",
           isMobileMenuOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -116,7 +116,7 @@ export default function Header() {
               key={link.href}
               style={{ transitionDelay: `${index * 45}ms` }}
               className={cn(
-                "transition-all duration-300",
+                "transition-[opacity,transform] duration-300 ease-out",
                 isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
               )}
             >

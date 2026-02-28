@@ -43,10 +43,10 @@ export default function InstagramStrip() {
                 className="group relative block aspect-square overflow-hidden rounded-sm border border-foreground/15"
               >
                 <div
-                  className="h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-300 group-hover:scale-110"
+                  className="h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                   style={{ backgroundImage: `url(${getImagePath(src)})` }}
                 />
-                <div className="absolute inset-0 bg-foreground/0 transition-all duration-300 group-hover:bg-foreground/20" />
+                <div className="absolute inset-0 bg-foreground/0 transition-[background-color] duration-300 ease-out group-hover:bg-foreground/20" />
               </a>
             </AnimatedSection>
           ))}

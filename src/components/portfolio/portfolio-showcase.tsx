@@ -143,7 +143,7 @@ export default function PortfolioShowcase() {
                   onMouseEnter={() => setHoveredIndex(index)}
                   onFocus={() => setHoveredIndex(index)}
                     className={cn(
-                      "group relative overflow-visible bg-[#fffdf8] p-3 pb-7 text-left shadow-[0_16px_28px_rgba(35,28,20,0.16)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_40px_rgba(35,28,20,0.24)]",
+                      "group relative overflow-visible bg-[#fffdf8] p-3 pb-7 text-left shadow-[0_16px_28px_rgba(35,28,20,0.16)] transition-[transform,box-shadow,filter] duration-400 ease-out hover:-translate-y-0.5 hover:shadow-[0_20px_34px_rgba(35,28,20,0.2)]",
                       frameWidth(image.width, image.height),
                       tiltPattern[index % tiltPattern.length],
                       offsetPattern[index % offsetPattern.length],

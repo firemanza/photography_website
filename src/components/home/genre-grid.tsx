@@ -30,15 +30,15 @@ export default function GenreGrid() {
                 className="group relative block aspect-[4/5] overflow-hidden rounded-sm border border-foreground/15"
               >
                 <div
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-110"
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out group-hover:scale-[1.035]"
                   style={{ backgroundImage: `url(${getImagePath(genreImages[category.slug])})` }}
                 />
 
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,18,13,0.2)_10%,rgba(23,18,13,0.78)_100%)] transition-all duration-300 group-hover:bg-[linear-gradient(180deg,rgba(23,18,13,0.15)_10%,rgba(23,18,13,0.6)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,18,13,0.2)_10%,rgba(23,18,13,0.78)_100%)] transition-[opacity,background] duration-400 ease-out group-hover:bg-[linear-gradient(180deg,rgba(23,18,13,0.15)_10%,rgba(23,18,13,0.6)_100%)]" />
 
                 <div className="absolute inset-x-0 bottom-0 p-6">
                   <h3 className="font-heading text-3xl text-surface">{category.label}</h3>
-                  <div className="mt-3 h-[2px] w-12 bg-accent transition-all duration-300 group-hover:w-24" />
+                  <div className="mt-3 h-[2px] w-12 origin-left bg-accent transition-transform duration-400 ease-out group-hover:scale-x-150" />
                 </div>
               </Link>
             </AnimatedSection>
