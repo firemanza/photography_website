@@ -85,7 +85,9 @@ function MasonryItem({
           alt={image.alt}
           width={image.width}
           height={image.height}
-          loading="lazy"
+          loading={index < 8 ? "eager" : "lazy"}
+          fetchPriority={index < 4 ? "high" : "auto"}
+          decoding="async"
           className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(33,27,21,0)_40%,rgba(33,27,21,0.45)_100%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

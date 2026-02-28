@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { portfolioImages } from "@/data/portfolio";
 import { cn, getImagePath } from "@/lib/utils";
@@ -61,6 +61,16 @@ export default function PortfolioShowcase() {
     if (activeCategory === "all") return portfolioImages;
     return portfolioImages.filter((img) => img.category === activeCategory);
   }, [activeCategory]);
+
+  useEffect(() => {
+    const preloadTargets = filteredImages.slice(0, 12);
+
+    preloadTargets.forEach((image) => {
+      const preloader = new window.Image();
+      preloader.decoding = "async";
+      preloader.src = getImagePath(image.src);
+    });
+  }, [filteredImages]);
 
   const previewImage =
     hoveredIndex !== null && hoveredIndex < filteredImages.length
@@ -158,7 +168,9 @@ export default function PortfolioShowcase() {
                       alt={image.alt}
                       width={image.width}
                       height={image.height}
-                      loading="lazy"
+                      loading={index < 8 ? "eager" : "lazy"}
+                      fetchPriority={index < 4 ? "high" : "auto"}
+                      decoding="async"
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>
@@ -199,6 +211,9 @@ export default function PortfolioShowcase() {
                     alt=""
                     width={previewImage.width}
                     height={previewImage.height}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                     className="h-full w-full object-contain"
                   />
                 ) : null}
