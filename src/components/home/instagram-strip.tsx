@@ -14,19 +14,23 @@ const instagramImages = [
 
 export default function InstagramStrip() {
   return (
-    <section className="border-y border-foreground/12 bg-surface/45 py-24">
+    <section className="border-y border-foreground/10 bg-white/38 py-20 sm:py-24">
       <Container>
         <AnimatedSection>
-          <div className="mb-10 flex items-end justify-between gap-4">
+          <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-mono text-xs tracking-[0.2em] text-muted uppercase">Daily Fragments</p>
-              <h3 className="mt-2 font-heading text-4xl text-foreground">Instagram Journal</h3>
+              <h3 className="mt-2 font-heading text-4xl text-foreground sm:text-5xl">Instagram Journal</h3>
+              <p className="mt-3 max-w-xl text-sm leading-7 text-foreground/72 sm:text-base">
+                This stays as a lighter social layer beneath the main portfolio path, giving the
+                homepage texture without competing with the hero or archive sections.
+              </p>
             </div>
             <a
               href={siteConfig.social.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden rounded-sm border border-foreground/20 px-4 py-2 text-xs tracking-[0.16em] text-foreground uppercase transition-all hover:border-accent hover:text-accent sm:inline-flex"
+              className="inline-flex w-fit rounded-full border border-foreground/14 px-4 py-2 text-xs tracking-[0.16em] text-foreground uppercase transition-all hover:border-accent hover:text-accent"
             >
               Follow
             </a>
@@ -40,7 +44,7 @@ export default function InstagramStrip() {
                 href={siteConfig.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative block aspect-square overflow-hidden rounded-sm border border-foreground/15"
+                className="group relative block aspect-square overflow-hidden rounded-[1.35rem] border border-foreground/12"
               >
                 <div
                   className="h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-500 ease-out group-hover:scale-[1.03]"

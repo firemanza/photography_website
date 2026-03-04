@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
+import { Inter, Playfair_Display } from "next/font/google";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import JsonLd from "@/components/seo/json-ld";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
+
+const bodyFont = Inter({
+  subsets: ["latin"],
+  variable: "--font-body-family",
+});
+
+const headingFont = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-heading-family",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -39,7 +50,7 @@ export default function RootLayout({
       <head>
         <JsonLd />
       </head>
-      <body className="min-h-screen antialiased">
+      <body className={`${bodyFont.variable} ${headingFont.variable} min-h-screen antialiased`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-accent focus:px-4 focus:py-2 focus:text-surface"
