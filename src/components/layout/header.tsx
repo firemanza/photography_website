@@ -133,7 +133,7 @@ export default function Header() {
           )}
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,rgba(37,99,235,0.12),rgba(255,255,255,0.86))] p-4">
+          <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,rgba(198,61,47,0.12),rgba(255,250,241,0.92))] p-4">
             <p className="font-mono text-[10px] tracking-[0.24em] text-muted uppercase">Now Booking</p>
             <div className="mt-3 flex items-start justify-between gap-3">
               <div>

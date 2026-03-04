@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { siteConfig } from "@/config/site";
 import Button from "@/components/ui/button";
 import ScrambleTagline from "@/components/home/scramble-tagline";
@@ -12,31 +11,27 @@ const heroSlides = [
     desktop: "/images/hero/hero-1.jpg",
     mobile: "/images/wildlife/lioness-green-field.jpg",
     alt: "Lioness standing in tall green grass",
-    label: "Wild Terrain",
   },
   {
     desktop: "/images/wildlife/goose-walking.jpg",
     mobile: "/images/wildlife/white-lion-portrait.jpg",
     alt: "Goose crossing a green yard",
-    label: "Quiet Motion",
   },
   {
     desktop: "/images/hero/hero-3.jpg",
     mobile: "/images/wildlife/rhino-portrait.jpg",
     alt: "White rhino portrait in warm light",
-    label: "Close Studies",
   },
-];
-
-const heroHighlights = [
-  "Mobile-first image hierarchy",
-  "Editorial pacing with minimal chrome",
-  "Fast-loading portfolio-first sections",
 ];
 
 export default function Hero() {
   const [requestedIndex, setRequestedIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+
+  const nextSlide = useCallback(() => {
+    setRequestedIndex((prev) => (prev + 1) % heroSlides.length);
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
@@ -49,150 +44,134 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setRequestedIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 5200);
+    const interval = setInterval(nextSlide, 5200);
+    return () => clearInterval(interval);
+  }, [nextSlide]);
 
-    return () => window.clearInterval(interval);
-  }, []);
+  useEffect(() => {
+    heroSlides.forEach((slide, index) => {
+      const activeSrc = isMobile ? slide.mobile : slide.desktop;
+      if (loadedImages[`${index}:${activeSrc}`]) return;
 
-  const currentSlide = heroSlides[requestedIndex];
+      const preloader = new window.Image();
+      preloader.decoding = "async";
+      preloader.onload = () => {
+        setLoadedImages((current) => {
+          if (current[`${index}:${activeSrc}`]) return current;
+          return { ...current, [`${index}:${activeSrc}`]: true };
+        });
+      };
+      preloader.src = getImagePath(activeSrc);
+    });
+  }, [isMobile, loadedImages]);
+
+  const visibleIndex = useMemo(() => {
+    const requestedSlide = heroSlides[requestedIndex];
+    const requestedSrc = requestedSlide ? (isMobile ? requestedSlide.mobile : requestedSlide.desktop) : "";
+    if (requestedSlide && loadedImages[`${requestedIndex}:${requestedSrc}`]) {
+      return requestedIndex;
+    }
+
+    const firstLoadedIndex = heroSlides.findIndex((slide, index) => {
+      const activeSrc = isMobile ? slide.mobile : slide.desktop;
+      return loadedImages[`${index}:${activeSrc}`];
+    });
+    return firstLoadedIndex >= 0 ? firstLoadedIndex : 0;
+  }, [isMobile, loadedImages, requestedIndex]);
+
+  const currentSlide = heroSlides[visibleIndex];
+  const currentSlideLoaded = Boolean(
+    currentSlide &&
+      loadedImages[`${visibleIndex}:${isMobile ? currentSlide.mobile : currentSlide.desktop}`]
+  );
 
   return (
-    <section className="relative overflow-hidden px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32">
-      <div className="absolute inset-0 bg-[linear-gradient(160deg,#f8fbff_0%,#edf2f8_45%,#e8edf5_100%)]" />
-      <div className="absolute inset-0 opacity-80 [background-image:radial-gradient(circle_at_12%_18%,rgba(37,99,235,0.16),transparent_24%),radial-gradient(circle_at_84%_22%,rgba(15,23,42,0.08),transparent_18%),radial-gradient(circle_at_72%_78%,rgba(96,165,250,0.12),transparent_24%)]" />
+    <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 sm:px-6 sm:pt-32">
+      <div className="absolute inset-0 bg-[linear-gradient(140deg,#1b140f_0%,#30231a_52%,#1a1310_100%)]" />
+      <div className="absolute inset-0 opacity-90 [background-image:radial-gradient(circle_at_18%_24%,rgba(214,101,56,0.24),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(255,246,222,0.12),transparent_24%)]" />
 
-      <div className="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <div className="max-w-2xl">
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="rounded-full border border-foreground/10 bg-white/70 px-3 py-1 font-mono text-[10px] tracking-[0.24em] text-muted uppercase">
-              {siteConfig.contact.location}
-            </p>
-            <p className="rounded-full border border-accent/15 bg-accent/8 px-3 py-1 font-mono text-[10px] tracking-[0.24em] text-accent uppercase">
-              Accepting Q2 commissions
-            </p>
-          </div>
+      {heroSlides.map((slide, index) => {
+        const activeSrc = isMobile ? slide.mobile : slide.desktop;
 
-          <h1
-            className="mt-6 max-w-xl font-heading leading-[0.92] text-foreground"
-            style={{ fontSize: "clamp(3.1rem, 9vw, 6.25rem)" }}
+        return (
+          <div
+            key={index}
+            className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
+            style={{ opacity: index === visibleIndex && loadedImages[`${index}:${activeSrc}`] ? 1 : 0 }}
           >
-            A sharper first draft for mobile and desktop.
-          </h1>
+            <picture>
+              <source media="(max-width: 767px)" srcSet={getImagePath(slide.mobile)} />
+              <img
+                src={getImagePath(slide.desktop)}
+                alt={slide.alt}
+                className="h-full w-full object-cover transition-transform duration-[1800ms] ease-out"
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
+                decoding="async"
+              />
+            </picture>
+          </div>
+        );
+      })}
 
-          <div className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+      <div
+        className="absolute inset-0 transition-opacity duration-700"
+        style={{ opacity: currentSlideLoaded ? 0 : 1 }}
+      >
+        <div className="h-full w-full bg-[linear-gradient(135deg,rgba(52,39,29,0.9),rgba(26,20,16,0.96))]" />
+        <div className="absolute inset-0 opacity-80 [background-image:radial-gradient(circle_at_25%_20%,rgba(214,101,56,0.24),transparent_24%),radial-gradient(circle_at_72%_30%,rgba(255,244,220,0.08),transparent_20%)]" />
+      </div>
+
+      <div className="absolute inset-0 bg-[linear-gradient(112deg,rgba(27,20,15,0.82)_0%,rgba(27,20,15,0.4)_45%,rgba(27,20,15,0.72)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(198,61,47,0.28),transparent_34%)]" />
+
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div className="max-w-3xl">
+          <p className="font-mono text-xs tracking-[0.2em] text-surface/80 uppercase">
+            Johannesburg, South Africa
+          </p>
+          <h1
+            className="mt-5 font-heading leading-[0.9] text-surface"
+            style={{ fontSize: "clamp(2.8rem, 7vw, 6rem)" }}
+          >
+            {siteConfig.name}
+          </h1>
+          <div className="mt-6 max-w-2xl">
             <ScrambleTagline />
           </div>
-
-          <p className="mt-5 max-w-xl text-sm leading-7 text-foreground/74 sm:text-base">
-            This direction keeps the cinematic tone of your current desktop draft, but reworks the
-            opening experience so mobile visitors land on a deliberate story instead of a loose
-            full-screen image stack.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button href="/portfolio" variant="primary" className="rounded-full px-7">
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Button href="/portfolio" variant="primary">
               View Portfolio
             </Button>
-            <Button href="/contact" variant="secondary" className="rounded-full px-7">
+            <Button
+              href="/contact"
+              variant="secondary"
+              className="border-surface/70 !text-surface !hover:bg-surface !hover:text-foreground"
+            >
               Start a Project
             </Button>
           </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {heroHighlights.map((item) => (
-              <div
-                key={item}
-                className="rounded-3xl border border-foreground/10 bg-white/72 px-4 py-4 shadow-[0_16px_40px_rgba(15,23,42,0.06)]"
-              >
-                <p className="font-mono text-[10px] tracking-[0.22em] text-accent uppercase">Direction</p>
-                <p className="mt-2 text-sm leading-6 text-foreground/78">{item}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
-        <div className="relative">
-          <div className="absolute -left-4 top-8 h-24 w-24 rounded-full bg-accent/12 blur-2xl sm:h-32 sm:w-32" />
-          <div className="absolute -right-4 bottom-10 h-28 w-28 rounded-full bg-foreground/8 blur-2xl sm:h-36 sm:w-36" />
-
-          <div className="relative overflow-hidden rounded-[2rem] border border-foreground/12 bg-[linear-gradient(145deg,rgba(17,19,24,0.98),rgba(31,41,55,0.96))] p-3 shadow-[0_30px_70px_rgba(15,23,42,0.22)] sm:p-4">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.45rem] sm:aspect-[5/4] lg:min-h-[37rem]">
-              {heroSlides.map((slide, index) => {
-                const src = getImagePath(isMobile ? slide.mobile : slide.desktop);
-
-                return (
-                  <div
-                    key={slide.alt}
-                    className="absolute inset-0 transition-opacity duration-[1400ms] ease-out"
-                    style={{ opacity: index === requestedIndex ? 1 : 0 }}
-                  >
-                    <Image
-                      src={src}
-                      alt={slide.alt}
-                      fill
-                      priority={index === 0}
-                      sizes="(max-width: 1024px) 100vw, 54vw"
-                      className="object-cover transition-transform duration-[2200ms] ease-out"
-                    />
-                  </div>
-                );
-              })}
-
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,15,25,0.1)_0%,rgba(10,15,25,0.05)_35%,rgba(10,15,25,0.78)_100%)]" />
-
-              <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3 sm:left-5 sm:right-5 sm:top-5">
-                <div className="rounded-full border border-white/14 bg-black/28 px-3 py-2 backdrop-blur-sm">
-                  <p className="font-mono text-[10px] tracking-[0.22em] text-white/72 uppercase">Featured Frame</p>
-                  <p className="mt-1 text-sm text-white">{currentSlide.label}</p>
-                </div>
-                <div className="rounded-full border border-white/14 bg-white/10 px-3 py-2 backdrop-blur-sm">
-                  <p className="font-mono text-[10px] tracking-[0.22em] text-white/72 uppercase">Draft v2</p>
-                </div>
-              </div>
-
-              <div className="absolute inset-x-4 bottom-4 sm:inset-x-5 sm:bottom-5">
-                <div className="grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-                  <div className="rounded-[1.35rem] border border-white/10 bg-black/28 px-4 py-4 backdrop-blur-md">
-                    <p className="font-mono text-[10px] tracking-[0.22em] text-white/68 uppercase">Archive Direction</p>
-                    <p className="mt-2 font-heading text-2xl text-white sm:text-3xl">Portfolio-first storytelling.</p>
-                    <p className="mt-2 text-sm leading-6 text-white/74">
-                      Visuals lead, text supports, and every action points toward the work.
-                    </p>
-                  </div>
-
-                  <div className="rounded-[1.35rem] border border-white/10 bg-white/10 px-4 py-4 backdrop-blur-md">
-                    <p className="font-mono text-[10px] tracking-[0.22em] text-white/68 uppercase">Mobile Focus</p>
-                    <div className="mt-2 space-y-2">
-                      <p className="text-sm text-white/86">Clear top navigation</p>
-                      <p className="text-sm text-white/86">Contained hero media</p>
-                      <p className="text-sm text-white/86">Faster scan path</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 px-1">
-              <div className="flex items-center gap-2">
-                {heroSlides.map((slide, index) => (
-                  <button
-                    key={slide.label}
-                    onClick={() => setRequestedIndex(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === requestedIndex ? "w-12 bg-accent" : "w-4 bg-white/28"
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-              <p className="font-mono text-[10px] tracking-[0.22em] text-white/58 uppercase">
-                Responsive motion with reduced clutter
-              </p>
-            </div>
-          </div>
+        <div className="justify-self-start rounded-sm border border-surface/25 bg-black/30 p-5 backdrop-blur-sm sm:p-6 lg:justify-self-end">
+          <p className="font-mono text-[11px] tracking-[0.2em] text-surface/80 uppercase">Current Focus</p>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-surface/88">
+            Field-driven portraiture and wildlife narratives with a tactile, cinematic finish designed for editorial and personal archives.
+          </p>
         </div>
+      </div>
+
+      <div className="absolute bottom-8 right-8 z-10 flex gap-2">
+        {heroSlides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setRequestedIndex(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === requestedIndex ? "w-10 bg-accent" : "w-4 bg-surface/45"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
       </div>
     </section>
   );

@@ -1,227 +1,185 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { portfolioImages } from "@/data/portfolio";
 import { cn, getImagePath } from "@/lib/utils";
+import Lightbox from "@/components/portfolio/lightbox";
 
-const tiltPattern = [
-  "rotate-[-1.8deg]",
-  "rotate-[1.1deg]",
-  "rotate-[-0.9deg]",
-  "rotate-[1.6deg]",
-  "rotate-[-1.3deg]",
-  "rotate-[0.5deg]",
-  "rotate-[-0.4deg]",
-];
-
-const offsetPattern = [
-  "translate-y-0",
-  "translate-y-2",
-  "-translate-y-1",
-  "translate-y-1",
-  "-translate-y-2",
-  "translate-y-0",
-];
-
-const tapePattern = [
-  "left-[12%] -top-3 -rotate-2",
-  "right-[12%] -top-3 rotate-2",
-  "left-[40%] -top-3 -rotate-1",
-  "left-[20%] -top-3 rotate-1",
-];
-
-function frameWidth(width: number, height: number) {
-  const ratio = width / height;
-  if (ratio > 1.15) return "w-[255px] sm:w-[290px]";
-  if (ratio < 0.9) return "w-[210px] sm:w-[235px]";
-  return "w-[225px] sm:w-[250px]";
-}
-
-function imageWindowSize(width: number, height: number) {
-  const ratio = width / height;
-  if (ratio > 1.15) return "aspect-[16/10]";
-  if (ratio < 0.9) return "aspect-[5/6]";
-  return "aspect-square";
-}
-
-function categoryAccent(category: string) {
-  if (category === "wildlife") return "bg-emerald-600";
-  if (category === "portraits") return "bg-amber-700";
-  if (category === "pets") return "bg-rose-700";
-  return "bg-accent";
+function categoryLabel(slug: string) {
+  if (slug === "all") return "All Work";
+  return siteConfig.categories.find((category) => category.slug === slug)?.label ?? slug;
 }
 
 export default function PortfolioShowcase() {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const filteredImages = useMemo(() => {
     if (activeCategory === "all") return portfolioImages;
-    return portfolioImages.filter((img) => img.category === activeCategory);
+    return portfolioImages.filter((image) => image.category === activeCategory);
   }, [activeCategory]);
 
-  useEffect(() => {
-    const preloadTargets = filteredImages.slice(0, 12);
+  const featuredImage = filteredImages[0] ?? null;
 
-    preloadTargets.forEach((image) => {
-      const preloader = new window.Image();
-      preloader.decoding = "async";
-      preloader.src = getImagePath(image.src);
-    });
-  }, [filteredImages]);
+  const openLightbox = (index: number) => setSelectedIndex(index);
+  const closeLightbox = () => setSelectedIndex(null);
 
-  const previewImage =
-    hoveredIndex !== null && hoveredIndex < filteredImages.length
-      ? filteredImages[hoveredIndex]
-      : filteredImages[0] ?? null;
-
-  const previewIsPortrait = previewImage
-    ? previewImage.width / previewImage.height < 0.9
-    : false;
-
-  const setCategory = (slug: string) => {
-    setActiveCategory(slug);
-    setHoveredIndex(null);
+  const nextImage = () => {
+    if (selectedIndex === null) return;
+    setSelectedIndex((selectedIndex + 1) % filteredImages.length);
   };
+
+  const prevImage = () => {
+    if (selectedIndex === null) return;
+    setSelectedIndex((selectedIndex - 1 + filteredImages.length) % filteredImages.length);
+  };
+
+  if (filteredImages.length === 0) {
+    return (
+      <div className="py-24 text-center">
+        <p className="text-lg text-muted">No images in this category yet.</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="mb-8 hidden items-center justify-center gap-3 lg:flex">
-        <span className="h-px w-16 bg-foreground/20" />
-        <p className="font-mono text-[10px] tracking-[0.22em] text-muted uppercase">
-          Curated Contact Wall
-        </p>
-        <span className="h-px w-16 bg-foreground/20" />
-      </div>
+      <div className="mt-10">
+        <div className="rounded-[2rem] border border-foreground/12 bg-[linear-gradient(180deg,rgba(251,247,236,0.98),rgba(244,236,219,0.95))] p-4 shadow-[0_24px_60px_rgba(35,28,20,0.12)] sm:p-6 lg:p-8">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+            <div className="relative overflow-hidden rounded-[1.65rem] border border-foreground/12 bg-[#e8dcc4]">
+              {featuredImage ? (
+                <>
+                  <img
+                    src={getImagePath(featuredImage.src)}
+                    alt={featuredImage.alt}
+                    width={featuredImage.width}
+                    height={featuredImage.height}
+                    className="h-full min-h-[18rem] w-full object-cover sm:min-h-[24rem] lg:min-h-[32rem]"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,16,13,0.08)_0%,rgba(20,16,13,0.02)_35%,rgba(20,16,13,0.72)_100%)]" />
+                  <div className="absolute inset-x-4 bottom-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-4 backdrop-blur-sm sm:inset-x-5 sm:bottom-5">
+                    <p className="font-mono text-[10px] tracking-[0.22em] text-white/72 uppercase">
+                      Featured Selection
+                    </p>
+                    <p className="mt-2 font-heading text-2xl text-surface sm:text-3xl">
+                      {featuredImage.title ?? "Untitled"}
+                    </p>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-surface/80 sm:text-base">
+                      {categoryLabel(activeCategory)}
+                    </p>
+                  </div>
+                </>
+              ) : null}
+            </div>
 
-      <div className="mb-10 flex flex-wrap justify-center gap-2 sm:gap-3">
-        <button
-          onClick={() => setCategory("all")}
-          className={cn(
-            "rounded-sm border px-4 py-2 text-xs tracking-[0.14em] uppercase transition-all duration-200 sm:px-5",
-            activeCategory === "all"
-              ? "border-foreground bg-foreground text-surface"
-              : "border-foreground/20 bg-surface/70 text-muted hover:border-accent hover:text-accent"
-          )}
-        >
-          All Work
-        </button>
-        {siteConfig.categories.map((category) => (
-          <button
-            key={category.slug}
-            onClick={() => setCategory(category.slug)}
-            className={cn(
-              "rounded-sm border px-4 py-2 text-xs tracking-[0.14em] uppercase transition-all duration-200 sm:px-5",
-              activeCategory === category.slug
-                ? "border-foreground bg-foreground text-surface"
-                : "border-foreground/20 bg-surface/70 text-muted hover:border-accent hover:text-accent"
-            )}
-          >
-            {category.label}
-          </button>
-        ))}
-      </div>
+            <div className="space-y-5">
+              <div>
+                <p className="font-mono text-[10px] tracking-[0.24em] text-muted uppercase">Mobile-first gallery</p>
+                <h2 className="mt-3 font-heading text-4xl leading-tight text-foreground sm:text-5xl">
+                  Cleaner browsing, better image focus.
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-7 text-muted sm:text-base">
+                  The portfolio now opens with a clear lead image and simple category controls, so
+                  mobile visitors can scan, tap, and open work without fighting a decorative layout.
+                </p>
+              </div>
 
-      {filteredImages.length === 0 ? (
-        <div className="py-24 text-center">
-          <p className="text-lg text-muted">No images in this category yet.</p>
-        </div>
-      ) : (
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(360px,30vw)] lg:gap-6">
-          <div className="relative overflow-hidden rounded-sm border border-foreground/12 bg-[linear-gradient(150deg,rgba(250,245,234,0.98),rgba(236,226,205,0.95))] p-5 shadow-[0_20px_40px_rgba(35,28,20,0.12)] sm:p-7">
-            <div className="pointer-events-none absolute -left-10 top-8 h-36 w-36 rounded-full bg-accent/10 blur-2xl" />
-            <div className="pointer-events-none absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-foreground/8 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(30,24,20,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(30,24,20,0.08)_1px,transparent_1px)] [background-size:32px_32px]" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.35),transparent)]" />
-
-            <div className="relative flex flex-wrap items-end justify-center gap-5 sm:gap-6">
-              {filteredImages.map((image, index) => (
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 <button
-                  key={image.src}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onFocus={() => setHoveredIndex(index)}
-                    className={cn(
-                      "group relative overflow-visible bg-[#fffdf8] p-3 pb-7 text-left shadow-[0_16px_28px_rgba(35,28,20,0.16)] transition-[transform,box-shadow,filter] duration-400 ease-out hover:-translate-y-0.5 hover:shadow-[0_20px_34px_rgba(35,28,20,0.2)]",
-                      frameWidth(image.width, image.height),
-                      tiltPattern[index % tiltPattern.length],
-                      offsetPattern[index % offsetPattern.length],
-                    hoveredIndex === index && "ring-2 ring-accent/45"
+                  onClick={() => setActiveCategory("all")}
+                  className={cn(
+                    "cursor-pointer rounded-full border px-4 py-2 text-xs tracking-[0.16em] uppercase transition-colors duration-200 sm:px-5",
+                    activeCategory === "all"
+                      ? "border-foreground bg-foreground text-surface"
+                      : "border-foreground/18 bg-surface/75 text-muted hover:border-accent hover:text-accent"
                   )}
-                    style={{ animation: `slide-up 0.5s ease-out ${index * 35}ms both` }}
-                  >
-                    <span
-                      className={cn(
-                        "pointer-events-none absolute z-10 h-5 w-14 rounded-[2px] border border-amber-200/70 bg-[linear-gradient(180deg,rgba(245,238,215,0.95),rgba(235,224,193,0.9))] shadow-sm",
-                        tapePattern[index % tapePattern.length]
-                      )}
-                    />
-                  <div
+                >
+                  All Work
+                </button>
+                {siteConfig.categories.map((category) => (
+                  <button
+                    key={category.slug}
+                    onClick={() => setActiveCategory(category.slug)}
                     className={cn(
-                      "grid place-items-center border border-foreground/12 bg-[#efe5d1] p-2",
-                      imageWindowSize(image.width, image.height)
+                      "cursor-pointer rounded-full border px-4 py-2 text-xs tracking-[0.16em] uppercase transition-colors duration-200 sm:px-5",
+                      activeCategory === category.slug
+                        ? "border-foreground bg-foreground text-surface"
+                        : "border-foreground/18 bg-surface/75 text-muted hover:border-accent hover:text-accent"
                     )}
                   >
-                    <img
-                      src={getImagePath(image.src)}
-                      alt={image.alt}
-                      width={image.width}
-                      height={image.height}
-                      loading={index < 8 ? "eager" : "lazy"}
-                      fetchPriority={index < 4 ? "high" : "auto"}
-                      decoding="async"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <p className="font-mono text-[10px] tracking-[0.16em] text-muted uppercase">
-                        Frame {String(index + 1).padStart(2, "0")}
-                      </p>
-                      <span
-                        className={cn("h-1.5 w-8 rounded-full opacity-85", categoryAccent(image.category))}
-                        aria-hidden="true"
-                      />
-                    </div>
-                </button>
-              ))}
+                    {category.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-[1.35rem] border border-foreground/10 bg-surface/72 px-4 py-4">
+                  <p className="font-mono text-[10px] tracking-[0.22em] text-muted uppercase">Category</p>
+                  <p className="mt-2 text-base text-foreground">{categoryLabel(activeCategory)}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-foreground/10 bg-surface/72 px-4 py-4">
+                  <p className="font-mono text-[10px] tracking-[0.22em] text-muted uppercase">Frames</p>
+                  <p className="mt-2 text-base text-foreground">{filteredImages.length}</p>
+                </div>
+              </div>
             </div>
           </div>
-
-          <aside className="hidden lg:block">
-            <div className="sticky top-20 overflow-hidden rounded-sm border border-foreground/16 bg-[linear-gradient(170deg,#fffef9,#f5ebd8)] p-3 shadow-[0_24px_60px_rgba(25,20,14,0.28)]">
-              <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#d66538,#c63d2f,#d66538)]" />
-              <div className="mb-2 flex items-center justify-between border-b border-foreground/12 pb-2">
-                <span className="font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
-                  Live Preview
-                </span>
-                <span className="font-mono text-[10px] tracking-[0.16em] text-muted uppercase">
-                  {hoveredIndex !== null ? String(hoveredIndex + 1).padStart(2, "0") : "01"}
-                </span>
-              </div>
-              <div
-                className={cn(
-                  "grid w-full place-items-center border border-foreground/12 bg-[#efe5d1] p-3 shadow-inner",
-                  previewIsPortrait ? "aspect-[4/5] max-h-[80dvh]" : "aspect-[16/10] max-h-[66dvh]"
-                )}
-              >
-                {previewImage ? (
-                  <img
-                    src={getImagePath(previewImage.src)}
-                    alt=""
-                    width={previewImage.width}
-                    height={previewImage.height}
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                    className="h-full w-full object-contain"
-                  />
-                ) : null}
-              </div>
-            </div>
-          </aside>
         </div>
-      )}
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filteredImages.map((image, index) => (
+            <button
+              key={`${image.src}-${activeCategory}`}
+              onClick={() => openLightbox(index)}
+              className="group cursor-pointer overflow-hidden rounded-[1.5rem] border border-foreground/10 bg-surface/80 text-left shadow-[0_14px_36px_rgba(35,28,20,0.08)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-[0_20px_44px_rgba(35,28,20,0.12)]"
+            >
+              <div className="relative overflow-hidden bg-[#e8dcc4]">
+                <img
+                  src={getImagePath(image.src)}
+                  alt={image.alt}
+                  width={image.width}
+                  height={image.height}
+                  loading={index < 6 ? "eager" : "lazy"}
+                  fetchPriority={index < 3 ? "high" : "auto"}
+                  decoding="async"
+                  className="h-72 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] sm:h-80"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(33,27,21,0)_44%,rgba(33,27,21,0.58)_100%)]" />
+                <div className="absolute left-4 top-4 rounded-full border border-white/16 bg-black/20 px-3 py-1 font-mono text-[10px] tracking-[0.22em] text-white/74 uppercase backdrop-blur-sm">
+                  {categoryLabel(image.category)}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+                <div className="min-w-0">
+                  <p className="truncate font-heading text-2xl text-foreground">
+                    {image.title ?? `Frame ${String(index + 1).padStart(2, "0")}`}
+                  </p>
+                  <p className="mt-1 truncate text-sm text-muted">
+                    Tap to view full frame
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-foreground/10 px-3 py-2 font-mono text-[10px] tracking-[0.2em] text-muted uppercase">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {selectedIndex !== null ? (
+        <Lightbox
+          images={filteredImages}
+          currentIndex={selectedIndex}
+          onClose={closeLightbox}
+          onNext={nextImage}
+          onPrev={prevImage}
+        />
+      ) : null}
     </>
   );
 }
