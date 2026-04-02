@@ -34,7 +34,7 @@ export default function Header() {
   }, [isMobileMenuOpen]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6 lg:px-8 xl:px-10 sm:pt-5">
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:pt-5">
       <nav
         className={cn(
           "mx-auto w-full max-w-[1800px] rounded-[1.5rem] border transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out",

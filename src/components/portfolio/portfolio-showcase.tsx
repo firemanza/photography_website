@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { portfolioImages } from "@/data/portfolio";
 import { cn, getImagePath } from "@/lib/utils";
@@ -63,6 +63,10 @@ export default function PortfolioShowcase() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [previewMaxHeight, setPreviewMaxHeight] = useState<number | null>(null);
+  const previewCardRef = useRef<HTMLDivElement>(null);
+  const previewFrameRef = useRef<HTMLDivElement>(null);
+  const previewFooterRef = useRef<HTMLDivElement>(null);
 
   const filteredImages = useMemo(() => {
     if (activeCategory === "all") return portfolioImages;
@@ -81,10 +85,6 @@ export default function PortfolioShowcase() {
     hoveredIndex !== null && hoveredIndex < filteredImages.length
       ? filteredImages[hoveredIndex]
       : filteredImages[0] ?? null;
-
-  const previewIsPortrait = previewImage
-    ? previewImage.width / previewImage.height < 0.9
-    : false;
 
   const featuredMobile = filteredImages[0] ?? null;
 
@@ -106,6 +106,37 @@ export default function PortfolioShowcase() {
     if (selectedIndex === null) return;
     setSelectedIndex((selectedIndex - 1 + filteredImages.length) % filteredImages.length);
   };
+
+  useEffect(() => {
+    const previewCard = previewCardRef.current;
+    const previewFrame = previewFrameRef.current;
+    const previewFooter = previewFooterRef.current;
+
+    if (!previewCard || !previewFrame || !previewFooter) return;
+
+    const updatePreviewSize = () => {
+      const frameTop = previewFrame.getBoundingClientRect().top;
+      const footerHeight = previewFooter.getBoundingClientRect().height;
+      const cardStyles = window.getComputedStyle(previewCard);
+      const cardPaddingBottom = Number.parseFloat(cardStyles.paddingBottom) || 0;
+      const availableHeight = window.innerHeight - frameTop - footerHeight - cardPaddingBottom;
+
+      setPreviewMaxHeight(availableHeight > 0 ? availableHeight : null);
+    };
+
+    updatePreviewSize();
+
+    const resizeObserver = new ResizeObserver(updatePreviewSize);
+    resizeObserver.observe(previewCard);
+    resizeObserver.observe(previewFooter);
+
+    window.addEventListener("resize", updatePreviewSize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updatePreviewSize);
+    };
+  }, [hoveredIndex, activeCategory, filteredImages.length]);
 
   if (filteredImages.length === 0) {
     return (
@@ -298,7 +329,10 @@ export default function PortfolioShowcase() {
         </div>
 
         <aside className="block">
-          <div className="sticky top-20 overflow-hidden rounded-sm border border-foreground/16 bg-[linear-gradient(170deg,#fffef9,#f5ebd8)] p-3 shadow-[0_24px_60px_rgba(25,20,14,0.28)]">
+          <div
+            ref={previewCardRef}
+            className="sticky top-20 overflow-hidden rounded-sm border border-foreground/16 bg-[linear-gradient(170deg,#fffef9,#f5ebd8)] p-3 shadow-[0_24px_60px_rgba(25,20,14,0.28)]"
+          >
             <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#d66538,#c63d2f,#d66538)]" />
             <div className="mb-2 flex items-center justify-between border-b border-foreground/12 pb-2">
               <span className="font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
@@ -309,12 +343,12 @@ export default function PortfolioShowcase() {
               </span>
             </div>
             <div
-              className={cn(
-                "grid w-full place-items-center border border-foreground/12 bg-[#efe5d1] p-3 shadow-inner",
-                previewIsPortrait
-                  ? "aspect-[4/5] max-h-[min(70dvh,620px)]"
-                  : "aspect-[16/10] max-h-[min(54dvh,430px)]"
-              )}
+              ref={previewFrameRef}
+              className="grid w-full place-items-center overflow-hidden border border-foreground/12 bg-[#efe5d1] p-3 shadow-inner"
+              style={{
+                aspectRatio: previewImage ? `${previewImage.width} / ${previewImage.height}` : undefined,
+                maxHeight: previewMaxHeight ? `${previewMaxHeight}px` : undefined,
+              }}
             >
               {previewImage ? (
                 <img
@@ -329,7 +363,7 @@ export default function PortfolioShowcase() {
                 />
               ) : null}
             </div>
-            <div className="border-t border-foreground/10 px-1 pt-4">
+            <div ref={previewFooterRef} className="border-t border-foreground/10 px-1 pt-4">
               <p className="font-heading text-3xl text-foreground">
                 {previewImage?.title ?? "Untitled"}
               </p>

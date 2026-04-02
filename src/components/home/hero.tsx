@@ -86,7 +86,7 @@ export default function Hero() {
   );
 
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 sm:px-6 lg:px-8 xl:px-10 sm:pt-32">
+    <section className="relative min-h-screen overflow-hidden px-4 pb-12 pt-28 sm:pt-32">
       <div className="absolute inset-0 bg-[linear-gradient(140deg,#1b140f_0%,#30231a_52%,#1a1310_100%)]" />
       <div className="absolute inset-0 opacity-90 [background-image:radial-gradient(circle_at_18%_24%,rgba(214,101,56,0.24),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(255,246,222,0.12),transparent_24%)]" />
 
