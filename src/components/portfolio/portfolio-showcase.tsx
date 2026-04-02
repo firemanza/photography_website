@@ -344,23 +344,24 @@ export default function PortfolioShowcase() {
             </div>
             <div
               ref={previewFrameRef}
-              className="grid w-full place-items-center overflow-hidden border border-foreground/12 bg-[#efe5d1] p-3 shadow-inner"
+              className="w-full overflow-hidden border border-foreground/12 bg-[#efe5d1] shadow-inner"
               style={{
-                aspectRatio: previewImage ? `${previewImage.width} / ${previewImage.height}` : undefined,
-                maxHeight: previewMaxHeight ? `${previewMaxHeight}px` : undefined,
+                height: previewMaxHeight ? `${previewMaxHeight}px` : undefined,
               }}
             >
               {previewImage ? (
-                <img
-                  src={getImagePath(previewImage.src)}
-                  alt=""
-                  width={previewImage.width}
-                  height={previewImage.height}
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                  className="h-full w-full object-contain"
-                />
+                <div className="flex h-full w-full items-center justify-center p-4">
+                  <img
+                    src={getImagePath(previewImage.src)}
+                    alt=""
+                    width={previewImage.width}
+                    height={previewImage.height}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
               ) : null}
             </div>
             <div ref={previewFooterRef} className="border-t border-foreground/10 px-1 pt-4">
