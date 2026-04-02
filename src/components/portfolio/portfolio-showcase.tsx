@@ -70,11 +70,29 @@ export default function PortfolioShowcase() {
   }, [activeCategory]);
 
   useEffect(() => {
-    filteredImages.slice(0, 12).forEach((image) => {
+    const preloadBatch = filteredImages.slice(0, 18);
+
+    preloadBatch.forEach((image) => {
       const preloader = new window.Image();
       preloader.decoding = "async";
       preloader.src = getImagePath(image.src);
     });
+
+    const warmRemainingImages = () => {
+      filteredImages.slice(18).forEach((image) => {
+        const preloader = new window.Image();
+        preloader.decoding = "async";
+        preloader.src = getImagePath(image.src);
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(warmRemainingImages);
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = window.setTimeout(warmRemainingImages, 300);
+    return () => window.clearTimeout(timeoutId);
   }, [filteredImages]);
 
   const previewImage =
@@ -334,6 +352,19 @@ function LivePreviewCard({
   description: string;
   priority?: boolean;
 }) {
+  const [displayedImage, setDisplayedImage] = useState(image);
+
+  useEffect(() => {
+    if (!image || displayedImage?.src === image.src) return;
+
+    const preloader = new window.Image();
+    preloader.decoding = "async";
+    preloader.onload = () => setDisplayedImage(image);
+    preloader.src = getImagePath(image.src);
+  }, [displayedImage?.src, image]);
+
+  const activeImage = displayedImage ?? image;
+
   return (
     <div
       className="relative overflow-hidden rounded-sm border border-foreground/16 bg-[linear-gradient(170deg,#fffef9,#f5ebd8)] p-3 shadow-[0_24px_60px_rgba(25,20,14,0.28)]"
@@ -348,17 +379,17 @@ function LivePreviewCard({
       <div
         className="w-full overflow-hidden border border-foreground/12 bg-[#efe5d1] shadow-inner"
         style={{
-          aspectRatio: image ? `${image.width} / ${image.height}` : undefined,
+          aspectRatio: activeImage ? `${activeImage.width} / ${activeImage.height}` : undefined,
           maxHeight: "72vh",
         }}
       >
-        {image ? (
+        {activeImage ? (
           <div className="flex h-full w-full items-center justify-center p-4">
             <img
-              src={getImagePath(image.src)}
+              src={getImagePath(activeImage.src)}
               alt=""
-              width={image.width}
-              height={image.height}
+              width={activeImage.width}
+              height={activeImage.height}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
               decoding="async"
@@ -368,7 +399,7 @@ function LivePreviewCard({
         ) : null}
       </div>
       <div className="border-t border-foreground/10 px-1 pt-4">
-        <p className="font-heading text-3xl text-foreground">{image?.title ?? "Untitled"}</p>
+        <p className="font-heading text-3xl text-foreground">{activeImage?.title ?? "Untitled"}</p>
         <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
       </div>
     </div>
