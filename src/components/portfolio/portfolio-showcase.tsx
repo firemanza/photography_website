@@ -237,7 +237,7 @@ export default function PortfolioShowcase() {
         </div>
       </div>
 
-      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(360px,30vw)] lg:gap-6">
+      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(340px,420px)] xl:grid-cols-[minmax(0,1fr)_minmax(360px,460px)] lg:gap-6">
         <div className="relative overflow-hidden rounded-sm border border-foreground/12 bg-[linear-gradient(150deg,rgba(250,245,234,0.98),rgba(236,226,205,0.95))] p-5 shadow-[0_20px_40px_rgba(35,28,20,0.12)] sm:p-7">
           <div className="pointer-events-none absolute -left-10 top-8 h-36 w-36 rounded-full bg-accent/10 blur-2xl" />
           <div className="pointer-events-none absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-foreground/8 blur-3xl" />
@@ -311,7 +311,9 @@ export default function PortfolioShowcase() {
             <div
               className={cn(
                 "grid w-full place-items-center border border-foreground/12 bg-[#efe5d1] p-3 shadow-inner",
-                previewIsPortrait ? "aspect-[4/5] max-h-[80dvh]" : "aspect-[16/10] max-h-[66dvh]"
+                previewIsPortrait
+                  ? "aspect-[4/5] max-h-[min(70dvh,620px)]"
+                  : "aspect-[16/10] max-h-[min(54dvh,430px)]"
               )}
             >
               {previewImage ? (
