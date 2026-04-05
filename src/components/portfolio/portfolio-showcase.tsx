@@ -33,13 +33,13 @@ const tapePattern = [
   "left-[20%] -top-3 rotate-1",
 ];
 
-const mobileRotationPattern = [-1.4, 0.9, -0.35, 1.5, -0.8, 0.45];
+const mobileRotationPattern = [-1.4, 0.35, 1.15, -0.75, 0.8, -1.05, 1.3, -0.2];
 
 function frameWidth(width: number, height: number) {
   const ratio = width / height;
-  if (ratio > 1.15) return "w-[230px] sm:w-[255px]";
-  if (ratio < 0.9) return "w-[188px] sm:w-[212px]";
-  return "w-[205px] sm:w-[228px]";
+  if (ratio > 1.15) return "w-[214px] sm:w-[239px]";
+  if (ratio < 0.9) return "w-[172px] sm:w-[196px]";
+  return "w-[189px] sm:w-[212px]";
 }
 
 function imageWindowSize(width: number, height: number) {
@@ -234,7 +234,7 @@ export default function PortfolioShowcase() {
         </div>
       </div>
 
-      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(430px,520px)] lg:gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(470px,580px)]">
+      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(430px,520px)] lg:gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(470px,560px)]">
         <div className="relative overflow-hidden rounded-sm border border-foreground/12 bg-[linear-gradient(150deg,rgba(250,245,234,0.98),rgba(236,226,205,0.95))] p-5 shadow-[0_20px_40px_rgba(35,28,20,0.12)] sm:p-7">
           <div className="pointer-events-none absolute -left-10 top-8 h-36 w-36 rounded-full bg-accent/10 blur-2xl" />
           <div className="pointer-events-none absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-foreground/8 blur-3xl" />
@@ -295,7 +295,7 @@ export default function PortfolioShowcase() {
         </div>
 
         <aside className="block">
-          <div className="sticky top-20 lg:mr-[-0.75rem] xl:mr-[-1.5rem] 2xl:mr-[-2.25rem]">
+          <div className="sticky top-20">
             <LivePreviewCard
               image={previewImage}
               frameNumber={previewIndex + 1}
