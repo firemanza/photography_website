@@ -33,6 +33,8 @@ const tapePattern = [
   "left-[20%] -top-3 rotate-1",
 ];
 
+const mobileRotationPattern = [-1.4, 0.9, -0.35, 1.5, -0.8, 0.45];
+
 function frameWidth(width: number, height: number) {
   const ratio = width / height;
   if (ratio > 1.15) return "w-[230px] sm:w-[255px]";
@@ -188,7 +190,7 @@ export default function PortfolioShowcase() {
                 "group relative cursor-pointer overflow-visible bg-[#fffdf8] px-2.5 pb-4 pt-2.5 text-left shadow-[0_14px_24px_rgba(35,28,20,0.14)] transition-[transform,box-shadow,filter] duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_30px_rgba(35,28,20,0.18)]",
                 "hover:ring-2 hover:ring-accent/25"
               )}
-              style={{ rotate: `${index % 2 === 0 ? -1.2 : 1.1}deg` }}
+              style={{ rotate: `${mobileRotationPattern[index % mobileRotationPattern.length]}deg` }}
             >
               <span
                 className={cn(
@@ -232,7 +234,7 @@ export default function PortfolioShowcase() {
         </div>
       </div>
 
-      <div className="hidden lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(520px,680px)] lg:gap-4 xl:grid-cols-[minmax(0,0.78fr)_minmax(580px,760px)]">
+      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(430px,520px)] lg:gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(470px,580px)]">
         <div className="relative overflow-hidden rounded-sm border border-foreground/12 bg-[linear-gradient(150deg,rgba(250,245,234,0.98),rgba(236,226,205,0.95))] p-5 shadow-[0_20px_40px_rgba(35,28,20,0.12)] sm:p-7">
           <div className="pointer-events-none absolute -left-10 top-8 h-36 w-36 rounded-full bg-accent/10 blur-2xl" />
           <div className="pointer-events-none absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-foreground/8 blur-3xl" />
@@ -293,7 +295,7 @@ export default function PortfolioShowcase() {
         </div>
 
         <aside className="block">
-          <div className="sticky top-20">
+          <div className="sticky top-20 lg:mr-[-0.75rem] xl:mr-[-1.5rem] 2xl:mr-[-2.25rem]">
             <LivePreviewCard
               image={previewImage}
               frameNumber={previewIndex + 1}
