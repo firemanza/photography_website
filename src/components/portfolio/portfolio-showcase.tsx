@@ -50,10 +50,34 @@ function imageWindowSize(width: number, height: number) {
 }
 
 function categoryAccent(category: string) {
-  if (category === "wildlife") return "bg-emerald-700";
-  if (category === "portraits") return "bg-amber-700";
-  if (category === "pets") return "bg-rose-700";
-  return "bg-accent";
+  if (category === "wildlife") return "bg-emerald-200";
+  if (category === "portraits") return "bg-amber-200";
+  if (category === "pets") return "bg-rose-200";
+  return "bg-stone-200";
+}
+
+function categoryFilterStyle(category: string, isActive: boolean) {
+  if (category === "wildlife") {
+    return isActive
+      ? "border-emerald-500/60 bg-emerald-200 text-foreground shadow-[0_8px_18px_rgba(6,78,59,0.12)]"
+      : "border-emerald-200 bg-emerald-100/70 text-foreground/75 hover:border-emerald-400 hover:bg-emerald-200 hover:text-foreground";
+  }
+
+  if (category === "portraits") {
+    return isActive
+      ? "border-amber-500/60 bg-amber-200 text-foreground shadow-[0_8px_18px_rgba(146,64,14,0.12)]"
+      : "border-amber-200 bg-amber-100/70 text-foreground/75 hover:border-amber-400 hover:bg-amber-200 hover:text-foreground";
+  }
+
+  if (category === "pets") {
+    return isActive
+      ? "border-rose-500/60 bg-rose-200 text-foreground shadow-[0_8px_18px_rgba(159,18,57,0.12)]"
+      : "border-rose-200 bg-rose-100/70 text-foreground/75 hover:border-rose-400 hover:bg-rose-200 hover:text-foreground";
+  }
+
+  return isActive
+    ? "border-stone-500/55 bg-stone-200 text-foreground shadow-[0_8px_18px_rgba(68,64,60,0.12)]"
+    : "border-stone-200 bg-stone-100/75 text-foreground/75 hover:border-stone-400 hover:bg-stone-200 hover:text-foreground";
 }
 
 function categoryLabel(slug: string) {
@@ -146,9 +170,7 @@ export default function PortfolioShowcase() {
           onClick={() => setCategory("all")}
           className={cn(
             "cursor-pointer rounded-full border px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-200 sm:px-5",
-            activeCategory === "all"
-              ? "border-foreground bg-foreground text-surface"
-              : "border-foreground/20 bg-surface/75 text-muted hover:border-accent hover:text-accent"
+            categoryFilterStyle("all", activeCategory === "all")
           )}
         >
           All Work
@@ -159,9 +181,7 @@ export default function PortfolioShowcase() {
             onClick={() => setCategory(category.slug)}
             className={cn(
               "cursor-pointer rounded-full border px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-200 sm:px-5",
-              activeCategory === category.slug
-                ? "border-foreground bg-foreground text-surface"
-                : "border-foreground/20 bg-surface/75 text-muted hover:border-accent hover:text-accent"
+              categoryFilterStyle(category.slug, activeCategory === category.slug)
             )}
           >
             {category.label}
@@ -208,13 +228,6 @@ export default function PortfolioShowcase() {
                   fetchPriority={index < 3 ? "high" : "auto"}
                   decoding="async"
                   className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                />
-                <span
-                  className={cn(
-                    "absolute left-3 top-3 inline-flex h-2.5 w-9 rounded-full opacity-90",
-                    categoryAccent(image.category)
-                  )}
-                  aria-hidden="true"
                 />
               </div>
               <div className="flex items-center justify-between gap-2 px-1 pt-3">
@@ -300,7 +313,6 @@ export default function PortfolioShowcase() {
               image={previewImage}
               frameNumber={previewIndex + 1}
               label="Live Preview"
-              description="Focused view for the hovered frame while you scan the wall."
               priority
             />
           </div>
@@ -324,14 +336,12 @@ function LivePreviewCard({
   image,
   frameNumber,
   label,
-  description,
   priority = false,
   compact = false,
 }: {
   image: (typeof portfolioImages)[number] | null;
   frameNumber: number;
   label: string;
-  description?: string;
   priority?: boolean;
   compact?: boolean;
 }) {
@@ -388,11 +398,6 @@ function LivePreviewCard({
         <p className={cn("font-heading text-foreground", compact ? "text-[2rem]" : "text-3xl")}>
           {activeImage?.title ?? "Untitled"}
         </p>
-        {description ? (
-          <p className={cn("text-muted", compact ? "mt-1 text-[13px] leading-5" : "mt-2 text-sm leading-6")}>
-            {description}
-          </p>
-        ) : null}
       </div>
     </div>
   );
