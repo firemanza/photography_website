@@ -1,7 +1,7 @@
 import { getImagePath } from "@/lib/utils";
 
 export const siteConfig = {
-  name: process.env.NEXT_PUBLIC_SITE_NAME || "Photography Portfolio",
+  name: process.env.NEXT_PUBLIC_SITE_NAME || "Silly Goose Studio",
   tagline: process.env.NEXT_PUBLIC_TAGLINE || "Capturing moments that matter",
   description:
     "Professional photography portfolio showcasing wildlife, portraits, and pet photography in Johannesburg, South Africa.",
