@@ -17,6 +17,9 @@ type StatusFilter = "all" | "draft" | "published" | "archived";
 
 function publicUrl(bucket: string, path: string | null) {
   if (!path) return null;
+  if (bucket === "external" || /^(https?:)?\/\//.test(path)) {
+    return path;
+  }
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
 
@@ -96,15 +99,11 @@ export default function LibraryClient({
 
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState("");
-  const [uploadAltText, setUploadAltText] = useState("");
-  const [uploadCaption, setUploadCaption] = useState("");
   const [uploadCategory, setUploadCategory] = useState(categories[0]?.slug ?? "wildlife");
   const [uploadPhotographer, setUploadPhotographer] = useState(currentUserId);
   const [uploadStatus, setUploadStatus] = useState<"draft" | "published">("draft");
 
   const [editTitle, setEditTitle] = useState(initialPhotos[0]?.title ?? "");
-  const [editAltText, setEditAltText] = useState(initialPhotos[0]?.alt_text ?? "");
-  const [editCaption, setEditCaption] = useState(initialPhotos[0]?.caption ?? "");
   const [editCategory, setEditCategory] = useState(initialPhotos[0]?.category_slug ?? categories[0]?.slug ?? "");
   const [editPhotographer, setEditPhotographer] = useState(initialPhotos[0]?.photographer_id ?? currentUserId);
   const [editStatus, setEditStatus] = useState<"draft" | "published" | "archived">(
@@ -130,8 +129,6 @@ export default function LibraryClient({
   function syncEditor(photo: Photo | null) {
     if (!photo) return;
     setEditTitle(photo.title);
-    setEditAltText(photo.alt_text ?? "");
-    setEditCaption(photo.caption ?? "");
     setEditCategory(photo.category_slug);
     setEditPhotographer(photo.photographer_id ?? currentUserId);
     setEditStatus(photo.status as "draft" | "published" | "archived");
@@ -190,8 +187,8 @@ export default function LibraryClient({
 
       const { error: insertError } = await supabase.from("photos").insert({
         title: uploadTitle.trim(),
-        alt_text: uploadAltText.trim() || uploadTitle.trim(),
-        caption: uploadCaption.trim() || null,
+        alt_text: uploadTitle.trim(),
+        caption: null,
         category_slug: uploadCategory,
         photographer_id: uploadPhotographer,
         created_by: currentUserId,
@@ -212,8 +209,6 @@ export default function LibraryClient({
       setNotice("Photo uploaded.");
       setUploadFile(null);
       setUploadTitle("");
-      setUploadAltText("");
-      setUploadCaption("");
       await refresh();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
@@ -235,8 +230,8 @@ export default function LibraryClient({
       .from("photos")
       .update({
         title: editTitle.trim(),
-        alt_text: editAltText.trim() || editTitle.trim(),
-        caption: editCaption.trim() || null,
+        alt_text: editTitle.trim(),
+        caption: null,
         category_slug: editCategory,
         photographer_id: editPhotographer || null,
         status: editStatus,
@@ -298,13 +293,15 @@ export default function LibraryClient({
 
     const removals: Promise<unknown>[] = [];
 
-    if (selectedPhoto.original_path) {
+    if (selectedPhoto.original_path && selectedPhoto.original_bucket !== "external") {
       removals.push(supabase.storage.from(selectedPhoto.original_bucket).remove([selectedPhoto.original_path]));
     }
 
-    removals.push(supabase.storage.from(selectedPhoto.display_bucket).remove([selectedPhoto.display_path]));
+    if (selectedPhoto.display_bucket !== "external") {
+      removals.push(supabase.storage.from(selectedPhoto.display_bucket).remove([selectedPhoto.display_path]));
+    }
 
-    if (selectedPhoto.thumbnail_path) {
+    if (selectedPhoto.thumbnail_path && selectedPhoto.thumbnail_bucket !== "external") {
       removals.push(supabase.storage.from(selectedPhoto.thumbnail_bucket).remove([selectedPhoto.thumbnail_path]));
     }
 
@@ -506,12 +503,23 @@ export default function LibraryClient({
               </div>
 
               <div className="mt-5 space-y-4">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(event) => setUploadFile(event.target.files?.[0] ?? null)}
-                  className="block w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
-                />
+                <label className="block cursor-pointer rounded-[1.6rem] border border-dashed bg-[color:var(--color-surface)] p-5 transition hover:border-[color:var(--color-accent)] hover:bg-white">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => setUploadFile(event.target.files?.[0] ?? null)}
+                    className="sr-only"
+                  />
+                  <p className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
+                    Choose photo
+                  </p>
+                  <p className="mt-3 text-sm text-[color:var(--color-ink)]">
+                    {uploadFile ? uploadFile.name : "Click here to browse your files"}
+                  </p>
+                  <p className="mt-2 text-xs text-[color:var(--color-muted)]">
+                    JPG, PNG, or WebP. The portal keeps the original and creates web and thumbnail versions automatically.
+                  </p>
+                </label>
 
                 <input
                   type="text"
@@ -520,22 +528,6 @@ export default function LibraryClient({
                   placeholder="Title"
                   className="w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
                   required
-                />
-
-                <textarea
-                  value={uploadAltText}
-                  onChange={(event) => setUploadAltText(event.target.value)}
-                  placeholder="Alt text"
-                  rows={3}
-                  className="w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
-                />
-
-                <textarea
-                  value={uploadCaption}
-                  onChange={(event) => setUploadCaption(event.target.value)}
-                  placeholder="Caption"
-                  rows={3}
-                  className="w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
                 />
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -636,20 +628,6 @@ export default function LibraryClient({
                     type="text"
                     value={editTitle}
                     onChange={(event) => setEditTitle(event.target.value)}
-                    className="w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
-                  />
-
-                  <textarea
-                    value={editAltText}
-                    onChange={(event) => setEditAltText(event.target.value)}
-                    rows={3}
-                    className="w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
-                  />
-
-                  <textarea
-                    value={editCaption}
-                    onChange={(event) => setEditCaption(event.target.value)}
-                    rows={3}
                     className="w-full rounded-2xl border bg-[color:var(--color-surface)] px-4 py-3 text-sm"
                   />
 

@@ -20,6 +20,10 @@ export function createPublicSupabaseClient() {
 }
 
 export function getSupabasePublicFileUrl(bucket: string, path: string) {
+  if (bucket === "external" || /^(https?:)?\/\//.test(path)) {
+    return path;
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   if (!url) {
