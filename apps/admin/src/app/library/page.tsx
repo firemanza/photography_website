@@ -20,10 +20,14 @@ export default async function LibraryPage() {
     supabase.from("profiles").select("id, email, display_name").order("display_name"),
   ]);
 
+  const currentProfile = (photographers ?? []).find((profile) => profile.id === user.id);
+
   return (
     <LibraryClient
       currentUserId={user.id}
-      currentUserEmail={user.email ?? ""}
+      currentUserLabel={
+        currentProfile?.display_name ?? currentProfile?.email ?? user.email ?? "Admin user"
+      }
       initialPhotos={photos ?? []}
       categories={categories ?? []}
       photographers={photographers ?? []}

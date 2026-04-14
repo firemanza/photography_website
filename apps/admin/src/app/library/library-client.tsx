@@ -84,13 +84,13 @@ async function resizeImage(file: File, maxDimension: number, quality: number) {
 
 export default function LibraryClient({
   currentUserId,
-  currentUserEmail,
+  currentUserLabel,
   initialPhotos,
   categories,
   photographers,
 }: {
   currentUserId: string;
-  currentUserEmail: string;
+  currentUserLabel: string;
   initialPhotos: Photo[];
   categories: Category[];
   photographers: Photographer[];
@@ -426,7 +426,7 @@ export default function LibraryClient({
           </div>
 
           <div className="flex flex-col gap-3 border-t px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-[color:var(--color-muted)]">Signed in as {currentUserEmail}</p>
+            <p className="text-sm text-[color:var(--color-muted)]">Signed in as {currentUserLabel}</p>
             <button
               type="button"
               onClick={handleSignOut}
