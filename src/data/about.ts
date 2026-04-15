@@ -1,16 +1,16 @@
 export const aboutContent = {
   eyebrow: "About",
-  title: "Two photographers, two cameras, two creative instincts, one goal: make the shot worth remembering.",
+  title: "Two photographers, two cameras, two artistic views, one goal: make the image worth keeping.",
   intro:
-    "Based in Gauteng, South Africa, Silly Goose Studio is now a two-photographer setup with one shared obsession: chasing moments that feel alive.",
+    "Based in Gauteng, South Africa, Aperture Two is a two-photographer studio built around strong moments, honest editing, and images that hold up over time.",
   bio: [
-    "One of us leans into patience, texture, and the kind of frame that rewards a second look. The other likes motion, atmosphere, and catching the split second where a scene stops being ordinary.",
-    "That difference is the point. Two sets of eyes means two artistic views on the same brief, which gives clients more range without losing a consistent standard.",
-    "From wildlife and pets to portraits and motorsport, the goal stays the same: honest images, strong composition, and photographs that still feel good long after the shoot is over.",
+    "Working as a two-photographer team means more coverage, more perspective, and a stronger chance of catching the moments that matter most.",
+    "We shoot with a clean, detailed style that works across wildlife, pets, portraits, and motorsport without losing personality.",
+    "The standard stays simple: thoughtful framing, strong light, and photographs that still feel right long after the shoot is done.",
   ],
   primaryImage: "/images/about/photographer-portrait.jpg",
   secondaryImage: "/images/portraits/bridge-jungle-view.jpg",
-  secondaryCaption: 'The face behind "Into the Wild".',
+  secondaryCaption: "",
   panel: {
     title: "Two views, one standard",
     body: "Different instincts behind the camera. Same bar for quality, story, and timing.",

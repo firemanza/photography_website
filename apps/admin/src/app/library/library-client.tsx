@@ -45,17 +45,16 @@ function normalizeAboutContent(value: SiteContentValue | null): AboutContentForm
     title:
       typeof record.title === "string"
         ? record.title
-        : "Two photographers, two cameras, two creative instincts, one goal: make the shot worth remembering.",
+        : "Two photographers, two cameras, two artistic views, one goal: make the image worth keeping.",
     intro:
       typeof record.intro === "string"
         ? record.intro
-        : "Based in Gauteng, South Africa, Silly Goose Studio is now a two-photographer setup with one shared obsession: chasing moments that feel alive.",
+        : "Based in Gauteng, South Africa, Aperture Two is a two-photographer studio built around strong moments, honest editing, and images that hold up over time.",
     paragraphs,
     primaryImage: typeof record.primary_image === "string" ? record.primary_image : "/images/about/photographer-portrait.jpg",
     secondaryImage:
       typeof record.secondary_image === "string" ? record.secondary_image : "/images/portraits/bridge-jungle-view.jpg",
-    secondaryCaption:
-      typeof record.secondary_caption === "string" ? record.secondary_caption : 'The face behind "Into the Wild".',
+    secondaryCaption: typeof record.secondary_caption === "string" ? record.secondary_caption : "",
     panelTitle: typeof record.panel_title === "string" ? record.panel_title : "Two views, one standard",
     panelBody:
       typeof record.panel_body === "string"

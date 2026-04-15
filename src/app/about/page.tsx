@@ -5,6 +5,8 @@ import { siteConfig } from "@/config/site";
 import { getAboutPageContent } from "@/lib/site-content";
 import { getImagePath } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "About",
   description:
@@ -37,12 +39,11 @@ export default async function AboutPage() {
                     backgroundColor: "#d8cdb7",
                   }}
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(24,22,26,0.8))] p-5 text-surface">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-surface/75">
-                    Second Photographer
-                  </p>
-                  <p className="mt-2 text-sm">{aboutContent.secondary_caption}</p>
-                </div>
+                {aboutContent.secondary_caption.trim() ? (
+                  <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(24,22,26,0.8))] p-5 text-surface">
+                    <p className="text-sm">{aboutContent.secondary_caption}</p>
+                  </div>
+                ) : null}
               </div>
             </div>
 
