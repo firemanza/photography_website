@@ -385,14 +385,9 @@ export default function LibraryClient({
         }),
       ]);
 
-      const displayPath =
-        selectedPhoto.display_bucket === "external"
-          ? `${selectedPhoto.photographer_id ?? currentUserId}/${selectedPhoto.id}-watermarked.jpg`
-          : selectedPhoto.display_path;
-      const thumbPath =
-        selectedPhoto.thumbnail_bucket === "external" || !selectedPhoto.thumbnail_path
-          ? `${selectedPhoto.photographer_id ?? currentUserId}/${selectedPhoto.id}-watermarked-thumb.jpg`
-          : selectedPhoto.thumbnail_path;
+      const version = Date.now();
+      const displayPath = `${selectedPhoto.photographer_id ?? currentUserId}/${selectedPhoto.id}-watermarked-${version}.jpg`;
+      const thumbPath = `${selectedPhoto.photographer_id ?? currentUserId}/${selectedPhoto.id}-watermarked-thumb-${version}.jpg`;
 
       const [{ error: displayError }, { error: thumbError }] = await Promise.all([
         supabase.storage.from("photo-display").upload(displayPath, displayBlob, {
