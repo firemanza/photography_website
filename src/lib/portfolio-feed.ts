@@ -64,8 +64,6 @@ export async function getPortfolioFeed(): Promise<PortfolioFeed> {
       ),
       displaySrc: getSupabasePublicFileUrl(photo.display_bucket, photo.display_path),
       fullSrc: getSupabasePublicFileUrl(photo.display_bucket, photo.display_path),
-      watermarkPosition:
-        (photo.watermark_position as PortfolioImage["watermarkPosition"] | null) ?? "bottom-right",
     })),
     source: "supabase",
   };

@@ -49,13 +49,6 @@ function imageWindowSize(width: number, height: number) {
   return "aspect-square";
 }
 
-function mobileCropPosition(position: PortfolioImage["watermarkPosition"]) {
-  if (position === "top-left") return "object-left-top";
-  if (position === "top-right") return "object-right-top";
-  if (position === "bottom-left") return "object-left-bottom";
-  return "object-right-bottom";
-}
-
 function categoryAccent(category: string) {
   if (category === "wildlife") return "bg-emerald-200";
   if (category === "portraits") return "bg-amber-200";
@@ -247,10 +240,7 @@ export default function PortfolioShowcase({
                   loading={index < 6 ? "eager" : "lazy"}
                   fetchPriority={index < 3 ? "high" : "auto"}
                   decoding="async"
-                  className={cn(
-                    "aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]",
-                    mobileCropPosition(image.watermarkPosition)
-                  )}
+                  className="aspect-[4/5] w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                 />
               </div>
               <div className="flex items-center justify-between gap-2 px-1 pt-3">
