@@ -5,7 +5,7 @@ export function getBasePath(): string {
 }
 
 export function getImagePath(path: string): string {
-  if (/^(https?:)?\/\//.test(path)) {
+  if (/^(https?:)?\/\//.test(path) || /^blob:/.test(path)) {
     return path;
   }
 

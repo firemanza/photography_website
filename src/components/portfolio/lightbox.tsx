@@ -22,9 +22,24 @@ export default function Lightbox({
 }: LightboxProps) {
   const current = images[currentIndex];
   const [showFullResolution, setShowFullResolution] = useState(false);
+  const [fullResolutionObjectUrl, setFullResolutionObjectUrl] = useState<string | null>(null);
+  const [fullResolutionProgress, setFullResolutionProgress] = useState<number | null>(null);
+  const [fullResolutionDownloadedBytes, setFullResolutionDownloadedBytes] = useState(0);
+  const [isLoadingFullResolution, setIsLoadingFullResolution] = useState(false);
+  const [fullResolutionError, setFullResolutionError] = useState<string | null>(null);
 
   useEffect(() => {
     setShowFullResolution(false);
+    setFullResolutionProgress(null);
+    setFullResolutionDownloadedBytes(0);
+    setIsLoadingFullResolution(false);
+    setFullResolutionError(null);
+    setFullResolutionObjectUrl((currentUrl) => {
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+      return null;
+    });
   }, [currentIndex]);
 
   const previewSrc = useMemo(() => {
@@ -38,6 +53,9 @@ export default function Lightbox({
   }, [current]);
 
   const canShowFullResolution = Boolean(fullSrc && previewSrc && fullSrc !== previewSrc);
+  const renderedSrc = showFullResolution
+    ? fullResolutionObjectUrl ?? previewSrc ?? current?.src ?? null
+    : previewSrc ?? current?.src ?? null;
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -64,6 +82,85 @@ export default function Lightbox({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
+
+  useEffect(() => {
+    if (!showFullResolution || !fullSrc || fullResolutionObjectUrl) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let objectUrl: string | null = null;
+
+    async function loadFullResolution() {
+      setIsLoadingFullResolution(true);
+      setFullResolutionError(null);
+      setFullResolutionProgress(null);
+      setFullResolutionDownloadedBytes(0);
+
+      try {
+        const targetSrc = getImagePath(fullSrc ?? current.src);
+        const response = await fetch(targetSrc, { signal: controller.signal });
+
+        if (!response.ok || !response.body) {
+          throw new Error("Could not load full resolution image.");
+        }
+
+        const totalBytesHeader = response.headers.get("content-length");
+        const totalBytes = totalBytesHeader ? Number(totalBytesHeader) : null;
+        const reader = response.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let receivedBytes = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) break;
+          if (!value) continue;
+
+          chunks.push(value);
+          receivedBytes += value.length;
+          setFullResolutionDownloadedBytes(receivedBytes);
+
+          if (totalBytes && totalBytes > 0) {
+            setFullResolutionProgress(Math.min(100, Math.round((receivedBytes / totalBytes) * 100)));
+          }
+        }
+
+        const mergedBytes = new Uint8Array(receivedBytes);
+        let offset = 0;
+
+        chunks.forEach((chunk) => {
+          mergedBytes.set(chunk, offset);
+          offset += chunk.length;
+        });
+
+        const blob = new Blob([mergedBytes]);
+        objectUrl = URL.createObjectURL(blob);
+        setFullResolutionObjectUrl(objectUrl);
+        setFullResolutionProgress(100);
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setShowFullResolution(false);
+        setFullResolutionError(error instanceof Error ? error.message : "Could not load full resolution image.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingFullResolution(false);
+        }
+      }
+    }
+
+    loadFullResolution();
+
+    return () => {
+      controller.abort();
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [fullResolutionObjectUrl, fullSrc, showFullResolution]);
 
   if (!current) return null;
 
@@ -112,11 +209,37 @@ export default function Lightbox({
       </button>
 
       <div className="relative max-h-[86vh] max-w-[92vw]" onClick={(e) => e.stopPropagation()}>
-        <img
-          src={getImagePath(showFullResolution ? fullSrc ?? current.src : previewSrc ?? current.src)}
-          alt={current.alt}
-          className="max-h-[86vh] max-w-[92vw] rounded-sm object-contain"
-        />
+        {renderedSrc ? (
+          <img
+            src={getImagePath(renderedSrc)}
+            alt={current.alt}
+            className="max-h-[86vh] max-w-[92vw] rounded-sm object-contain"
+          />
+        ) : null}
+        {showFullResolution && isLoadingFullResolution ? (
+          <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-surface/20 bg-black/55 px-4 py-3 text-surface backdrop-blur">
+            <p className="text-xs uppercase tracking-[0.16em] text-surface/70">Loading full resolution</p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface/20">
+              <div
+                className="h-full rounded-full bg-surface transition-all"
+                style={{ width: `${fullResolutionProgress ?? 18}%` }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-surface/80">
+              <span>
+                {fullResolutionProgress !== null
+                  ? `${fullResolutionProgress}%`
+                  : `${(fullResolutionDownloadedBytes / (1024 * 1024)).toFixed(2)} MB downloaded`}
+              </span>
+              <span>Preparing image…</span>
+            </div>
+          </div>
+        ) : null}
+        {fullResolutionError ? (
+          <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-red-300/40 bg-red-950/65 px-4 py-3 text-sm text-red-100 backdrop-blur">
+            {fullResolutionError}
+          </div>
+        ) : null}
       </div>
 
       <div className="absolute bottom-16 left-1/2 flex -translate-x-1/2 items-center gap-3">
