@@ -240,7 +240,7 @@ export default function PortfolioShowcase({
                   loading={index < 6 ? "eager" : "lazy"}
                   fetchPriority={index < 3 ? "high" : "auto"}
                   decoding="async"
-                  className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  className="aspect-[4/5] w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                 />
               </div>
               <div className="flex items-center justify-between gap-2 px-1 pt-3">
