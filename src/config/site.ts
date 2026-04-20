@@ -15,7 +15,7 @@ export const siteConfig = {
   },
 
   contact: {
-    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@example.com",
+    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "aperture.2.photos@gmail.com",
     location: process.env.NEXT_PUBLIC_LOCATION || "Johannesburg, South Africa",
   },
 

@@ -3,7 +3,6 @@
 import { useEffect, useState, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import Script from "next/script";
-import emailjs from "@emailjs/browser";
 import { siteConfig } from "@/config/site";
 import Button from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -87,23 +86,12 @@ export default function ContactForm() {
     };
   }, [turnstileSiteKey]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
-    // Honeypot check, bots often fill hidden fields.
     if (honeypot) {
       setStatus("success");
-      return;
-    }
-
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-
-    if (!serviceId || !templateId || !publicKey) {
-      setStatus("error");
-      setErrorMessage("Form is not configured yet. Please email directly instead.");
       return;
     }
 
@@ -113,37 +101,49 @@ export default function ContactForm() {
       return;
     }
 
-    try {
-      setStatus("sending");
-      await emailjs.send(
-        serviceId,
-        templateId,
-        {
-          from_name: formData.name,
-          from_email: formData.email,
-          phone: formData.phone || "Not provided",
-          shoot_type:
-            shootTypes.find((t) => t.value === formData.shootType)?.label ||
-            formData.shootType,
-          date: formData.date || "Flexible",
-          location: formData.location,
-          budget:
-            budgetRanges.find((b) => b.value === formData.budget)?.label ||
-            "Not specified",
-          message: formData.message,
-          how_found:
-            howFoundOptions.find((h) => h.value === formData.howFound)?.label ||
-            "Not specified",
-          turnstile_token: turnstileToken || "Not provided",
-        },
-        publicKey
-      );
-      setStatus("success");
-      setTurnstileToken("");
-    } catch {
-      setStatus("error");
-      setErrorMessage("Something went wrong. Please email directly instead.");
-    }
+    const shootTypeLabel =
+      shootTypes.find((t) => t.value === formData.shootType)?.label ||
+      formData.shootType ||
+      "Not specified";
+    const budgetLabel =
+      budgetRanges.find((b) => b.value === formData.budget)?.label ||
+      formData.budget ||
+      "Not specified";
+    const howFoundLabel =
+      howFoundOptions.find((h) => h.value === formData.howFound)?.label ||
+      formData.howFound ||
+      "Not specified";
+
+    const subject = `Photography enquiry${formData.name ? ` from ${formData.name}` : ""}`;
+    const body = [
+      `Name: ${formData.name}`,
+      `Email: ${formData.email}`,
+      `Phone: ${formData.phone || "Not provided"}`,
+      "",
+      `Type of shoot: ${shootTypeLabel}`,
+      `Preferred date: ${formData.date || "Flexible"}`,
+      `Location: ${formData.location || "Not specified"}`,
+      `Budget: ${budgetLabel}`,
+      "",
+      "Message:",
+      formData.message,
+      "",
+      `How they found me: ${howFoundLabel}`,
+    ].join("\n");
+
+    const mailtoHref = `mailto:${siteConfig.contact.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    const anchor = document.createElement("a");
+    anchor.href = mailtoHref;
+    anchor.rel = "noopener";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    setTurnstileToken("");
+    setStatus("success");
   };
 
   if (status === "success") {
@@ -162,8 +162,14 @@ export default function ContactForm() {
             d="M5 13l4 4L19 7"
           />
         </svg>
-        <h3 className="mt-4 font-heading text-3xl text-foreground">Thanks for reaching out.</h3>
-        <p className="mt-2 text-muted">I will get back to you within 48 hours.</p>
+        <h3 className="mt-4 font-heading text-3xl text-foreground">Your email is ready to send.</h3>
+        <p className="mt-2 text-muted">
+          Your mail app should have opened with your enquiry filled in. Send it from there and we will get back to you within 48 hours. If nothing opened, email us at{" "}
+          <a href={directEmailHref} className="underline decoration-accent/40 underline-offset-4 hover:text-foreground">
+            {siteConfig.contact.email}
+          </a>
+          .
+        </p>
       </div>
     );
   }
