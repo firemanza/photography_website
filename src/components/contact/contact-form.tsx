@@ -86,7 +86,7 @@ export default function ContactForm() {
     };
   }, [turnstileSiteKey]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -103,47 +103,45 @@ export default function ContactForm() {
 
     const shootTypeLabel =
       shootTypes.find((t) => t.value === formData.shootType)?.label ||
-      formData.shootType ||
-      "Not specified";
+      formData.shootType;
     const budgetLabel =
-      budgetRanges.find((b) => b.value === formData.budget)?.label ||
-      formData.budget ||
-      "Not specified";
+      budgetRanges.find((b) => b.value === formData.budget)?.label || "";
     const howFoundLabel =
-      howFoundOptions.find((h) => h.value === formData.howFound)?.label ||
-      formData.howFound ||
-      "Not specified";
+      howFoundOptions.find((h) => h.value === formData.howFound)?.label || "";
 
-    const subject = `Photography enquiry${formData.name ? ` from ${formData.name}` : ""}`;
-    const body = [
-      `Name: ${formData.name}`,
-      `Email: ${formData.email}`,
-      `Phone: ${formData.phone || "Not provided"}`,
-      "",
-      `Type of shoot: ${shootTypeLabel}`,
-      `Preferred date: ${formData.date || "Flexible"}`,
-      `Location: ${formData.location || "Not specified"}`,
-      `Budget: ${budgetLabel}`,
-      "",
-      "Message:",
-      formData.message,
-      "",
-      `How they found me: ${howFoundLabel}`,
-    ].join("\n");
+    setStatus("sending");
 
-    const mailtoHref = `mailto:${siteConfig.contact.email}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          shootType: shootTypeLabel,
+          date: formData.date,
+          location: formData.location,
+          budget: budgetLabel,
+          message: formData.message,
+          howFound: howFoundLabel,
+          website: honeypot,
+        }),
+      });
 
-    const anchor = document.createElement("a");
-    anchor.href = mailtoHref;
-    anchor.rel = "noopener";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || "Something went wrong.");
+      }
 
-    setTurnstileToken("");
-    setStatus("success");
+      setTurnstileToken("");
+      setStatus("success");
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Something went wrong. Please email directly instead."
+      );
+    }
   };
 
   if (status === "success") {
@@ -162,14 +160,8 @@ export default function ContactForm() {
             d="M5 13l4 4L19 7"
           />
         </svg>
-        <h3 className="mt-4 font-heading text-3xl text-foreground">Your email is ready to send.</h3>
-        <p className="mt-2 text-muted">
-          Your mail app should have opened with your enquiry filled in. Send it from there and we will get back to you within 48 hours. If nothing opened, email us at{" "}
-          <a href={directEmailHref} className="underline decoration-accent/40 underline-offset-4 hover:text-foreground">
-            {siteConfig.contact.email}
-          </a>
-          .
-        </p>
+        <h3 className="mt-4 font-heading text-3xl text-foreground">Thanks for reaching out.</h3>
+        <p className="mt-2 text-muted">We&apos;ll get back to you within 48 hours.</p>
       </div>
     );
   }
